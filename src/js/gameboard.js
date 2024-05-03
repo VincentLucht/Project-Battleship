@@ -17,50 +17,74 @@ class Gameboard {
   }
 
   placementAllowed(ship, location, mode = 'horizontal') {
-    // horizontal
-    const row = location[0];
-    const col = location[1];
-    // loop through arr locations array, go n amount of steps to the right
-    for (let i = 0; i < ship.length; i += 1) {
-      // case: location exceeds array, check whether col length exceeds row length
-      if (col + i >= this.field[row].length) {
-        return 'Placement not allowed, must be inside of field';
+    if (mode === 'horizontal') {
+      const row = location[0];
+      const col = location[1];
+      // loop through arr locations array, go n amount of steps to the right
+      for (let i = 0; i < ship.length; i += 1) {
+        // case: location exceeds array, check whether col length exceeds row length
+        if (col + i >= this.field[row].length) {
+          return 'Placement not allowed, must be inside of field';
+        }
+        // case: location is occupied
+        if (this.field[row][col + i] !== '') {
+          return "Can't place ship here, another ship already here";
+        }
       }
-      // case: location is occupied
-      if (this.field[location[0]][location[1]] !== '') {
-        return "Can't place ship here, another ship already here.";
-      }
-      // increment the position's second, as it will go only in row
+      return true;
     }
-
-    return true;
-
-    // vertical
+    else if (mode === 'vertical') {
+      const row = location[0];
+      // loop through row instead of columns now
+      for (let i = 0; i < ship.length; i += 1) {
+        // case: ship length exceeds column length
+        if (row + i >= this.field[row].length) {
+          return 'Placement not allowed, must be inside of field';
+        }
+        // case: location occupied
+        if (!this.field[row + i]) {
+          return "Can't place ship here, another ship already here";
+        }
+      }
+      return true;
+    }
   }
 
   placeShip(ship, location, mode = 'horizontal') {
-    // horizontal
-    // check if placement is allowed first
-    if (this.placementAllowed(ship, location) === true) {
-      // loop for ship.length
-      for (let i = 0; i < ship.length; i += 1) {
-        // then for every ship.length, place the the ship inside of the location
-        this.field[location[0]][location[1]] = ship;
-        // increment the location
-        location[1] += 1;
+    if (mode === 'horizontal') {
+      if (this.placementAllowed(ship, location) === true) {
+        const row = location[0];
+        const col = location[1];
+        // loop for ship.length
+        for (let i = 0; i < ship.length; i += 1) {
+          // then for every ship.length, place the the ship inside of the location
+          this.field[row][col + i] = ship;
+        }
+      } else {
+        return this.placementAllowed(ship, location);
       }
-    } else {
-      return this.placementAllowed(ship, location);
     }
+    else if (mode === 'vertical') {
+      if (this.placementAllowed(ship, location, 'vertical') === true) {
+        // check for placement
+        const row = location[0];
+        const col = location[1];
 
-    // vertical
+        for (let i = 0; i < ship.length; i += 1) {
+          // place ship on location and increment by i
+          this.field[row + i][col] = ship;
+        }
+      } else {
+        return this.placementAllowed(ship, location, 'vertical');
+      }
+    }
   }
 }
 
 const gameboard = new Gameboard();
-const battleship = new Battleship(5);
+const patrolBoat = new Battleship(2);
 
-gameboard.placeShip(battleship, [0, 0]);
-console.log(gameboard);
+gameboard.placeShip(patrolBoat, [8, 9]);
+console.log(gameboard.field);
 
 module.exports = Gameboard;

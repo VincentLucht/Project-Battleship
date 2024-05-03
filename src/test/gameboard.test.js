@@ -26,7 +26,17 @@ test('Placing a ship at a coordinate, vertically', () => {
   expect(gameboard.field[5][4]).toBe(battleship);
 });
 
-// test('Placing a ship at the edges of the field, horizontally and vertically');
+test('Placing a ship at the edges of the field, horizontally and vertically', () => {
+  const mockGameboard = new Gameboard();
+  const patrolBoat = new Ship(2);
+  const location1 = [8, 9];
+  const location2 = [8, 1];
+  mockGameboard.placeShip(patrolBoat, location1, 'vertical');
+  mockGameboard.placeShip(patrolBoat, location2, 'vertical');
+
+  expect(mockGameboard.field[8][9]).toBe(patrolBoat);
+  expect(mockGameboard.field[8][1]).toBe(patrolBoat);
+});
 
 test('Placing a ship at the end of the coordinate that is not allowed, horizontally', () => {
   const patrolBoat = new Ship(2);
@@ -46,9 +56,12 @@ test('Placing a ship at the end of the coordinate that is not allowed, verticall
   const location = [9, 9];
   const location2 = [8, 2];
 
-  expect(gameboard.placeShip(submarine, location)).toBe('Placement not allowed, must be inside of field');
-  expect(gameboard.placeShip(submarine, location2)).toBe('Placement not allowed, must be inside of field');
+  expect(gameboard.placeShip(submarine, location, 'vertical')).toBe('Placement not allowed, must be inside of field');
+  expect(gameboard.placeShip(submarine, location2, 'vertical')).toBe('Placement not allowed, must be inside of field');
+
   // expect the locations to be empty!
+  expect(gameboard.field[9][9]).toBe('');
+  expect(gameboard.field[8][2]).toBe('');
 });
 
 test('Placing a ship inside of another ship', () => {
@@ -61,9 +74,9 @@ test('Placing a ship inside of another ship', () => {
   const location2 = [0, 4];
   const location3 = [0, 2];
 
-  expect(mockGameboard.placeShip(submarine, location)).toBe("Can't place ship here, another ship already here.");
-  expect(mockGameboard.placeShip(submarine, location2)).toBe("Can't place ship here, another ship already here.");
-  expect(mockGameboard.placeShip(submarine, location3)).toBe("Can't place ship here, another ship already here.");
+  expect(mockGameboard.placeShip(submarine, location)).toBe("Can't place ship here, another ship already here");
+  expect(mockGameboard.placeShip(submarine, location2)).toBe("Can't place ship here, another ship already here");
+  expect(mockGameboard.placeShip(submarine, location3)).toBe("Can't place ship here, another ship already here");
 
   // expect the locations to still contain the aircraft carrier!
   expect(mockGameboard.field[0][0]).toBe(aircraftCarrier);
