@@ -15,6 +15,7 @@
         "arrow-body-style": "off",
         "class-methods-use-this": "off",
         "no-param-reassign": "off",
-        "no-else-return": "off"
+        "no-else-return": "off",
+        "brace-style": "off"
     }
 }
