@@ -14,22 +14,20 @@ test('Creating a both players with type of "player" and "computer", also have to
 
 test('Both players must have a gameboard', () => {
   // Testing when both type and gameboard are provided
-  expect(new Player('human', 'gameboard')).not.toBe(
-    'Please create a gameboard for the user',
-  );
+  expect(() => new Player('human', 'gameboard')).not.toThrow();
 
   // Testing when type is missing
-  expect(new Player(undefined, 'gameboard')).toBe(
+  expect(() => new Player(undefined, 'gameboard')).toThrow(
     'Please create a gameboard for the user',
   );
 
   // Testing when gameboard is missing
-  expect(new Player('human', undefined)).toBe(
+  expect(() => new Player('human', undefined)).toThrow(
     'Please create a gameboard for the user',
   );
 
   // Testing when both type and gameboard are missing
-  expect(new Player(undefined, undefined)).toBe(
+  expect(() => new Player(undefined, undefined)).toThrow(
     'Please create a gameboard for the user',
   );
 });

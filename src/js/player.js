@@ -8,7 +8,4 @@ class Player {
   }
 }
 
-const player = new Player();
-console.log(player);
-
 module.exports = Player;

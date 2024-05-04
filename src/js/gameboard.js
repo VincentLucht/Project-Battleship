@@ -1,5 +1,3 @@
-const Battleship = require('./ship');
-
 class Gameboard {
   constructor() {
     this.field = [
@@ -105,12 +103,5 @@ class Gameboard {
     return 'Invalid coordinates';
   }
 }
-
-const gameboard = new Gameboard();
-const patrolBoat = new Battleship(2);
-
-gameboard.placeShip(patrolBoat, [9, 8]);
-gameboard.receiveAttack([9, 8]);
-console.log(gameboard.field);
 
 module.exports = Gameboard;
