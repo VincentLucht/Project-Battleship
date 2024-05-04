@@ -84,4 +84,64 @@ test('Placing a ship inside of another ship', () => {
   expect(mockGameboard.field[0][2]).toBe(aircraftCarrier);
 });
 
-// test("Hitting a ship's coordinate should remove it (or change it to hit?)");
+// receiveAttack tests
+test("Hitting a ship's coordinate should remove it and change it to hit", () => {
+  const mockGameboard = new Gameboard();
+  const aircraftCarrier = new Ship(5);
+
+  mockGameboard.placeShip(aircraftCarrier, [9, 5]);
+  mockGameboard.receiveAttack([9, 5]);
+
+  expect(aircraftCarrier.timesHit).toBe(1);
+  expect(mockGameboard.field[9][5]).toBe('hit');
+});
+
+test('Hitting an empty spot should change it to "miss"', () => {
+  const mockGameboard = new Gameboard();
+  const aircraftCarrier = new Ship(5);
+
+  mockGameboard.placeShip(aircraftCarrier, [9, 5]);
+  mockGameboard.receiveAttack([9, 5]);
+
+  expect(aircraftCarrier.timesHit).toBe(1);
+  expect(mockGameboard.field[9][5]).toBe('hit');
+
+  mockGameboard.receiveAttack([9, 4]);
+  expect(aircraftCarrier.timesHit).toBe(1);
+  expect(mockGameboard.field[9][4]).toBe('miss');
+});
+
+test('Hitting an already hit spot, should not be allowed', () => {
+  const mockGameboard = new Gameboard();
+  const aircraftCarrier = new Ship(5);
+
+  mockGameboard.placeShip(aircraftCarrier, [9, 5]);
+  mockGameboard.receiveAttack([9, 5]);
+
+  expect(aircraftCarrier.timesHit).toBe(1);
+  expect(mockGameboard.field[9][5]).toBe('hit');
+
+  expect(mockGameboard.receiveAttack([9, 5])).toBe("Can't hit an already attacked spot");
+});
+
+test('Hitting different ships on the gameboard', () => {
+  const mockGameboard = new Gameboard();
+  const ship1 = new Ship(4); // Create first ship
+  const ship2 = new Ship(3); // Create second ship
+
+  // Place ships on the gameboard
+  mockGameboard.placeShip(ship1, [0, 0]);
+  mockGameboard.placeShip(ship2, [5, 5]);
+
+  // Attack coordinates where ships are placed
+  mockGameboard.receiveAttack([0, 0]); // Hit ship1
+  mockGameboard.receiveAttack([5, 5]); // Hit ship2
+
+  // Verify that the ships were hit
+  expect(ship1.timesHit).toBe(1);
+  expect(ship2.timesHit).toBe(1);
+
+  // Verify that the hit spots are marked as 'hit'
+  expect(mockGameboard.field[0][0]).toBe('hit');
+  expect(mockGameboard.field[5][5]).toBe('hit');
+});

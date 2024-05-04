@@ -79,12 +79,35 @@ class Gameboard {
       }
     }
   }
+
+  receiveAttack(coordinates) {
+    const row = coordinates[0];
+    const col = coordinates[1];
+    const field = this.field[row][col];
+    // if the space is already hit, return "Can't hit an already hit spot"
+    if (field === 'miss' || field === 'hit') {
+      return "Can't hit an already attacked spot";
+    }
+    // if the space is empty, change this.[row][col] to 'hit'
+    if (field === '') {
+      this.field[row][col] = 'miss';
+    }
+    // if there is a ship, save ship to var
+    if (typeof (field) === 'object') {
+      const ship = field;
+      // send a hit attack to that ship
+      ship.hit();
+      // change the coords to 'hit'
+      this.field[row][col] = 'hit';
+    }
+  }
 }
 
 const gameboard = new Gameboard();
 const patrolBoat = new Battleship(2);
 
-gameboard.placeShip(patrolBoat, [8, 9]);
+gameboard.placeShip(patrolBoat, [9, 8]);
+gameboard.receiveAttack([9, 8]);
 console.log(gameboard.field);
 
 module.exports = Gameboard;
