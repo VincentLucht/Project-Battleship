@@ -48,6 +48,7 @@ class Gameboard {
       }
       return true;
     }
+    return 'Invalid mode';
   }
 
   placeShip(ship, location, mode = 'horizontal') {
@@ -78,6 +79,7 @@ class Gameboard {
         return this.placementAllowed(ship, location, 'vertical');
       }
     }
+    return 'Invalid mode';
   }
 
   receiveAttack(coordinates) {
@@ -100,6 +102,7 @@ class Gameboard {
       // change the coords to 'hit'
       this.field[row][col] = 'hit';
     }
+    return 'Invalid coordinates';
   }
 }
 
