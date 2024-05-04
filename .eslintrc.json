@@ -15,6 +15,7 @@
         "arrow-body-style": "off",
         "class-methods-use-this": "off",
         "no-else-return": "off",
-        "brace-style": "off"
+        "brace-style": "off",
+        "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }]
     }
 }

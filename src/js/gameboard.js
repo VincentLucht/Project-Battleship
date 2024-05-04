@@ -21,7 +21,7 @@ class Gameboard {
       const row = location[0];
       const col = location[1];
       // loop through arr locations array, go n amount of steps to the right
-      for (let i = 0; i < ship.length; i += 1) {
+      for (let i = 0; i < ship.length; i++) {
         // case: location exceeds array, check whether col length exceeds row length
         if (col + i >= this.field[row].length) {
           return 'Placement not allowed, must be inside of field';
@@ -36,7 +36,7 @@ class Gameboard {
     else if (mode === 'vertical') {
       const row = location[0];
       // loop through row instead of columns now
-      for (let i = 0; i < ship.length; i += 1) {
+      for (let i = 0; i < ship.length; i++) {
         // case: ship length exceeds column length
         if (row + i >= this.field[row].length) {
           return 'Placement not allowed, must be inside of field';
@@ -57,7 +57,7 @@ class Gameboard {
         const row = location[0];
         const col = location[1];
         // loop for ship.length
-        for (let i = 0; i < ship.length; i += 1) {
+        for (let i = 0; i < ship.length; i++) {
           // then for every ship.length, place the the ship inside of the location
           this.field[row][col + i] = ship;
         }
@@ -71,7 +71,7 @@ class Gameboard {
         const row = location[0];
         const col = location[1];
 
-        for (let i = 0; i < ship.length; i += 1) {
+        for (let i = 0; i < ship.length; i++) {
           // place ship on location and increment by i
           this.field[row + i][col] = ship;
         }
