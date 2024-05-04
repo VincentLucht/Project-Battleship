@@ -5,9 +5,11 @@ class Ship {
     this.sunk = false;
   }
 
-  hit(targetShip) {
-    targetShip.timesHit += 1;
-    targetShip.isSunk();
+  hit() {
+    if (this.timesHit !== this.length) { // don't allow ship to be hit beyond length
+      this.timesHit += 1;
+      this.isSunk();
+    }
   }
 
   isSunk() {
