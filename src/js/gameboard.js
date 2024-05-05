@@ -29,10 +29,13 @@ class Gameboard {
           return "Can't place ship here, another ship already here";
         }
       }
+      // case: ship close to proximity
+      // horizontal
       return true;
     }
     else if (mode === 'vertical') {
       const row = location[0];
+      const col = location[1];
       // loop through row instead of columns now
       for (let i = 0; i < ship.length; i++) {
         // case: ship length exceeds column length
@@ -40,13 +43,91 @@ class Gameboard {
           return 'Placement not allowed, must be inside of field';
         }
         // case: location occupied
-        if (!this.field[row + i]) {
+        if (this.field[row + i][col] !== '') {
           return "Can't place ship here, another ship already here";
         }
       }
+      // vertical
+      // loop through 3 times 1 top, 1 bottom, rest for middle
+      for (let i = 0; i < 3; i++) {
+        // check the upper three for an object, if they exist, loop 3
+        // => upper left this.field[row-1][col-1]
+        if (
+          this.field[row - 1] && // check if row exists first, so you don't access undefined
+          this.field[row - 1][col - 1] &&
+          typeof this.field[row - 1][col - 1] === 'object'
+        ) {
+          return "Can't place ship here, another ship in close proximity";
+        }
+        // => upper middle this.field[row-1][col]
+        else if (
+          this.field[row - 1] &&
+          this.field[row - 1][col] &&
+          typeof this.field[row - 1][col] === 'object'
+        ) {
+          return "Can't place ship here, another ship in close proximity";
+        }
+        // => upper right this.field[row-1][col+1]
+        else if (
+          this.field[row - 1] &&
+          this.field[row - 1][col + 1] &&
+          typeof this.field[row - 1][col + 1] === 'object'
+        ) {
+          return "Can't place ship here, another ship in close proximity";
+        }
+      }
+
+      // check the middle ones for an object, if they exist, loop ship.length * 2
+      for (let i = 0; i < ship.length; i++) {
+        // => current left = this.field[row + i][col - 1]
+        if (
+          this.field[row + i] &&
+            this.field[row + i][col - 1] &&
+            typeof this.field[row + i][col - 1] === 'object'
+        ) {
+          return "Can't place ship here, another ship in close proximity";
+        }
+        // => current right = this.field[row + i][col + 1]
+        if (
+          this.field[row + i] &&
+            this.field[row + i][col + 1] &&
+            typeof this.field[row + i][col + 1] === 'object'
+        ) {
+          return "Can't place ship here, another ship in close proximity";
+        }
+      }
+
+      // check the bottom three for an object, if they exist, loop 3
+      for (let i = 0; i < 3; i++) {
+        // => bottom left this.field[row + 1][col - 1]
+        if (
+          this.field[row + 1] &&
+            this.field[row + 1][col - 1] &&
+            typeof this.field[row + 1][col - 1] === 'object'
+        ) {
+          return "Can't place ship here, another ship in close proximity";
+        }
+        // => bottom middle this.field[row + 1][col]
+        if (
+          this.field[row + 1] &&
+            this.field[row + 1][col] &&
+            typeof this.field[row + 1][col] === 'object'
+        ) {
+          return "Can't place ship here, another ship in close proximity";
+        }
+        // => bottom right this.field[row + 1][col + 1]
+        if (
+          this.field[row + 1] &&
+            this.field[row + 1][col + 1] &&
+            typeof this.field[row + 1][col + 1] === 'object'
+        ) {
+          return "Can't place ship here, another ship in close proximity";
+        }
+      }
+
       return true;
     }
-    return 'Invalid mode';
+    return 'Invalid';
   }
 
   placeShip(ship, location, mode = 'horizontal') {
@@ -77,7 +158,7 @@ class Gameboard {
         return this.placementAllowed(ship, location, 'vertical');
       }
     }
-    return 'Invalid mode';
+    return 'Invalid';
   }
 
   receiveAttack(coordinates) {
@@ -100,8 +181,19 @@ class Gameboard {
       // change the coords to 'hit'
       this.field[row][col] = 'hit';
     }
-    return 'Invalid coordinates';
+    return 'Invalid';
   }
 }
+
+const Ship = require('./ship');
+
+const gameboard = new Gameboard();
+const patrolBoat = new Ship(2);
+const submarine = new Ship(3);
+
+gameboard.placeShip(patrolBoat, [9, 7]);
+console.log(gameboard.placeShip(submarine, [7, 9], 'vertical'));
+
+console.log(gameboard.field);
 
 module.exports = Gameboard;
