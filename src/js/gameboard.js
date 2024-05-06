@@ -14,6 +14,42 @@ class Gameboard {
     ];
   }
 
+  checkProximityLeft(startingPoint) {
+    // checks the left upper left, left middle left, left bottom left
+    const row = startingPoint[0];
+    const col = startingPoint[1];
+
+    // left upper left: this.field[row - 1][col - 1]
+    if (
+      this.field[row - 1] && // check if row exists first, otherwise access's undefined
+      this.field[row - 1][col - 1] &&
+      typeof (this.field[row - 1][col - 1]) === 'object'
+    ) {
+      return 'Not allowed, left upper left found';
+    }
+
+    // left middle left: this.field[row][col - 1]
+    if (
+      this.field[row] &&
+      this.field[row][col - 1] &&
+      typeof (this.field[row][col - 1]) === 'object'
+    ) {
+      return 'Not allowed, left middle left found';
+    }
+
+    // left bottom left: this.field[row + 1][col - 1]
+    if (
+      this.field[row + 1] &&
+      this.field[row + 1][col - 1] &&
+      typeof (this.field[row + 1][col - 1])
+    ) {
+      return 'Not allowed, left bottom left found';
+    }
+
+    // always return true at end
+    return true;
+  }
+
   placementAllowed(ship, location, mode = 'horizontal') {
     if (mode === 'horizontal') {
       const row = location[0];
@@ -30,9 +66,12 @@ class Gameboard {
         }
       }
       // case: ship close to proximity
-      // horizontal
+      if (this.checkProximityLeft(location) !== true) {
+        return this.checkProximityLeft(location);
+      }
       return true;
     }
+
     else if (mode === 'vertical') {
       const row = location[0];
       const col = location[1];
@@ -47,83 +86,9 @@ class Gameboard {
           return "Can't place ship here, another ship already here";
         }
       }
-      // vertical
-      // loop through 3 times 1 top, 1 bottom, rest for middle
-      for (let i = 0; i < 3; i++) {
-        // check the upper three for an object, if they exist, loop 3
-        // => upper left this.field[row-1][col-1]
-        if (
-          this.field[row - 1] && // check if row exists first, so you don't access undefined
-          this.field[row - 1][col - 1] &&
-          typeof this.field[row - 1][col - 1] === 'object'
-        ) {
-          return "Can't place ship here, another ship in close proximity";
-        }
-        // => upper middle this.field[row-1][col]
-        else if (
-          this.field[row - 1] &&
-          this.field[row - 1][col] &&
-          typeof this.field[row - 1][col] === 'object'
-        ) {
-          return "Can't place ship here, another ship in close proximity";
-        }
-        // => upper right this.field[row-1][col+1]
-        else if (
-          this.field[row - 1] &&
-          this.field[row - 1][col + 1] &&
-          typeof this.field[row - 1][col + 1] === 'object'
-        ) {
-          return "Can't place ship here, another ship in close proximity";
-        }
-      }
 
-      // check the middle ones for an object, if they exist, loop ship.length * 2
-      for (let i = 0; i < ship.length; i++) {
-        // => current left = this.field[row + i][col - 1]
-        if (
-          this.field[row + i] &&
-            this.field[row + i][col - 1] &&
-            typeof this.field[row + i][col - 1] === 'object'
-        ) {
-          return "Can't place ship here, another ship in close proximity";
-        }
-        // => current right = this.field[row + i][col + 1]
-        if (
-          this.field[row + i] &&
-            this.field[row + i][col + 1] &&
-            typeof this.field[row + i][col + 1] === 'object'
-        ) {
-          return "Can't place ship here, another ship in close proximity";
-        }
-      }
-
-      // check the bottom three for an object, if they exist, loop 3
-      for (let i = 0; i < 3; i++) {
-        // => bottom left this.field[row + 1][col - 1]
-        if (
-          this.field[row + 1] &&
-            this.field[row + 1][col - 1] &&
-            typeof this.field[row + 1][col - 1] === 'object'
-        ) {
-          return "Can't place ship here, another ship in close proximity";
-        }
-        // => bottom middle this.field[row + 1][col]
-        if (
-          this.field[row + 1] &&
-            this.field[row + 1][col] &&
-            typeof this.field[row + 1][col] === 'object'
-        ) {
-          return "Can't place ship here, another ship in close proximity";
-        }
-        // => bottom right this.field[row + 1][col + 1]
-        if (
-          this.field[row + 1] &&
-            this.field[row + 1][col + 1] &&
-            typeof this.field[row + 1][col + 1] === 'object'
-        ) {
-          return "Can't place ship here, another ship in close proximity";
-        }
-      }
+      // case: ship close to proximity
+      // const errorMessage = "Can't place ship here, another ship in close proximity";
 
       return true;
     }
@@ -188,12 +153,12 @@ class Gameboard {
 const Ship = require('./ship');
 
 const gameboard = new Gameboard();
-const patrolBoat = new Ship(2);
 const submarine = new Ship(3);
+const patrolBoat = new Ship(2);
 
-gameboard.placeShip(patrolBoat, [9, 7]);
-console.log(gameboard.placeShip(submarine, [7, 9], 'vertical'));
+gameboard.placeShip(submarine, [2, 3]);
+const result = gameboard.placeShip(patrolBoat, [2, 6]);
 
-console.log(gameboard.field);
+console.log(result);
 
 module.exports = Gameboard;
