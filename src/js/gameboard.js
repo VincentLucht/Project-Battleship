@@ -14,7 +14,7 @@ class Gameboard {
     ];
   }
 
-  checkProximityLeft(startingPoint) {
+  checkProximityLeft(startingPoint, mode) {
     // checks the left upper left, left middle left, left bottom left
     const row = startingPoint[0];
     const col = startingPoint[1];
@@ -45,7 +45,41 @@ class Gameboard {
     ) {
       return 'Not allowed, left bottom left found';
     }
+    // always return true at end
+    return true;
+  }
 
+  checkProximityRight(startingPoint, ship, mode) {
+    // checks the right upper right, right middle right, right middle right
+    // needs ship arg to calculate the end point location of the ship, to increase the column
+    const endPoint = ship.length - 1;
+    const row = startingPoint[0];
+    const col = startingPoint[1] + endPoint;
+
+    // => right upper right: this.field[row - 1][col + 1]
+    if (
+      this.field[row - 1] &&
+      this.field[row - 1][col + 1] &&
+      typeof (this.field[row - 1][col + 1]) === 'object'
+    ) {
+      return 'Not allowed, right upper right found';
+    }
+    // => right middle right: this.field[row][col + 1]
+    if (
+      this.field[row] &&
+      this.field[row][col + 1] &&
+      typeof (this.field[row][col + 1]) === 'object'
+    ) {
+      return 'Not allowed, right middle right found';
+    }
+    // => right bottom right: this.field[row + 1][col + 1]
+    if (
+      this.field[row + 1] &&
+      this.field[row + 1][col + 1] &&
+      typeof (this.field[row + 1][col + 1]) === 'object'
+    ) {
+      return 'Not allowed, right bottom right found';
+    }
     // always return true at end
     return true;
   }
@@ -66,8 +100,13 @@ class Gameboard {
         }
       }
       // case: ship close to proximity
-      if (this.checkProximityLeft(location) !== true) {
-        return this.checkProximityLeft(location);
+      // check left
+      if (this.checkProximityLeft(location, mode) !== true) {
+        return this.checkProximityLeft(location, mode);
+      }
+      // check right
+      if (this.checkProximityRight(location, ship, mode) !== true) {
+        return this.checkProximityRight(location, ship, mode);
       }
       return true;
     }
@@ -92,7 +131,7 @@ class Gameboard {
 
       return true;
     }
-    return 'Invalid';
+    return 'Success';
   }
 
   placeShip(ship, location, mode = 'horizontal') {
@@ -123,7 +162,7 @@ class Gameboard {
         return this.placementAllowed(ship, location, 'vertical');
       }
     }
-    return 'Invalid';
+    return 'Success';
   }
 
   receiveAttack(coordinates) {
@@ -146,7 +185,7 @@ class Gameboard {
       // change the coords to 'hit'
       this.field[row][col] = 'hit';
     }
-    return 'Invalid';
+    return 'Success';
   }
 }
 
@@ -156,9 +195,16 @@ const gameboard = new Gameboard();
 const submarine = new Ship(3);
 const patrolBoat = new Ship(2);
 
+// RUR
+gameboard.placeShip(submarine, [1, 3]);
+// RMR
 gameboard.placeShip(submarine, [2, 3]);
-const result = gameboard.placeShip(patrolBoat, [2, 6]);
+// RBR
+gameboard.placeShip(submarine, [3, 3]);
 
-console.log(result);
+const result = gameboard.placeShip(patrolBoat, [2, 1]);
+
+console.log({ result });
+console.log(gameboard.field);
 
 module.exports = Gameboard;
