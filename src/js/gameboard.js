@@ -49,6 +49,33 @@ class Gameboard {
     return true;
   }
 
+  checkProximityMiddle(startingPoint, ship, mode) {
+    // checks the upper and lower part of each of the ship's module
+    const row = startingPoint[0];
+    const col = startingPoint[1];
+
+    for (let i = 0; i < ship.length; i++) {
+      // upper: this.field[row - 1][col + i]
+      if (
+        this.field[row - 1] &&
+        this.field[row - 1][col + i] &&
+        typeof (this.field[row - 1][col + i]) === 'object'
+      ) {
+        return 'Not allowed, upper part found';
+      }
+      // lower: this.field[row + 1][col + i]
+      if (
+        this.field[row + 1] &&
+        this.field[row + 1][col + i] &&
+        typeof (this.field[row + 1][col + i]) === 'object'
+      ) {
+        return 'Not allowed, lower part found';
+      }
+    }
+
+    return true;
+  }
+
   checkProximityRight(startingPoint, ship, mode) {
     // checks the right upper right, right middle right, right middle right
     // needs ship arg to calculate the end point location of the ship, to increase the column
@@ -85,6 +112,8 @@ class Gameboard {
   }
 
   placementAllowed(ship, location, mode = 'horizontal') {
+    // checks if the ship would be placed out of bounds
+    // also checks for ships in close proximity (a one square radius all around the ship)
     if (mode === 'horizontal') {
       const row = location[0];
       const col = location[1];
@@ -104,10 +133,17 @@ class Gameboard {
       if (this.checkProximityLeft(location, mode) !== true) {
         return this.checkProximityLeft(location, mode);
       }
+
+      // check middle
+      if (this.checkProximityMiddle(location, ship, mode) !== true) {
+        return this.checkProximityMiddle(location, ship, mode);
+      }
+
       // check right
       if (this.checkProximityRight(location, ship, mode) !== true) {
         return this.checkProximityRight(location, ship, mode);
       }
+
       return true;
     }
 
@@ -125,9 +161,6 @@ class Gameboard {
           return "Can't place ship here, another ship already here";
         }
       }
-
-      // case: ship close to proximity
-      // const errorMessage = "Can't place ship here, another ship in close proximity";
 
       return true;
     }
@@ -193,16 +226,13 @@ const Ship = require('./ship');
 
 const gameboard = new Gameboard();
 const submarine = new Ship(3);
-const patrolBoat = new Ship(2);
+const submarine2 = new Ship(3);
 
-// RUR
-gameboard.placeShip(submarine, [1, 3]);
-// RMR
-gameboard.placeShip(submarine, [2, 3]);
-// RBR
-gameboard.placeShip(submarine, [3, 3]);
+// RU
+gameboard.placeShip(submarine, [2, 1]);
+// RL
 
-const result = gameboard.placeShip(patrolBoat, [2, 1]);
+const result = gameboard.placeShip(submarine2, [1, 2]);
 
 console.log({ result });
 console.log(gameboard.field);
