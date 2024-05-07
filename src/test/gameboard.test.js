@@ -95,8 +95,8 @@ describe('Testing the this.placeShip method, placing ships at different location
   });
 });
 
-describe('Testing placing a ship in close proximity to each other, Horizontal', () => {
-  describe('Checking for the left upper left, left middle left, left bottom left', () => {
+describe('Testing placing a ship in close proximity to each other, horizontal', () => {
+  describe('this.checkProximityLeft(), checking for the left upper left, left middle left, left bottom left', () => {
     test('Checking for each checkProximityLeft() function return value', () => {
       // check the left upper left
       const gameboard1 = new Gameboard();
@@ -129,7 +129,7 @@ describe('Testing placing a ship in close proximity to each other, Horizontal', 
       expect(gameboard3.field[2][7]).toBe('');
     });
 
-    describe('Checking for out of bounds errors and placing at edges', () => {
+    describe('this.checkProximityLeft() for out of bounds errors and placing at edges', () => {
       test('Placing a ship at the lop left edge is allowed', () => {
         const mockGameboard = new Gameboard();
         const patrolBoat = new Ship(2);
@@ -165,6 +165,29 @@ describe('Testing placing a ship in close proximity to each other, Horizontal', 
         expect(mockGameboard.field[9][8]).toBe(patrolBoat);
         expect(mockGameboard.field[9][9]).toBe(patrolBoat);
       });
+    });
+  });
+
+  describe('this.checkProximityRight(), checking for the right upper right, right middle right, right middle right', () => {
+    const placeSubmarine = (mockGameboard, coordinates) => {
+      const submarine = new Ship(3);
+      mockGameboard.placeShip(submarine, coordinates);
+    };
+
+    // function to test quicker
+    const testShipPlacement = (submarineCoordinates, mockShipCoordinates, expectedMessage) => {
+      const mockGameboard = new Gameboard();
+      placeSubmarine(mockGameboard, submarineCoordinates);
+      const mockShip = new Ship(2);
+      expect(mockGameboard.placeShip(mockShip, mockShipCoordinates)).toBe(expectedMessage);
+      expect(mockGameboard.field[mockShipCoordinates[0]][mockShipCoordinates[1]]).toBe('');
+      expect(mockGameboard.field[mockShipCoordinates[0]][mockShipCoordinates[1] + 1]).toBe('');
+    };
+
+    test('this.checkProximityRight(), checking for the right upper right, right middle right, right bottom right', () => {
+      testShipPlacement([1, 3], [2, 1], 'Not allowed, right upper right found');
+      testShipPlacement([2, 3], [2, 1], 'Not allowed, right middle right found');
+      testShipPlacement([3, 3], [2, 1], 'Not allowed, right bottom right found');
     });
   });
 });
