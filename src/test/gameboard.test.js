@@ -168,26 +168,66 @@ describe('Testing placing a ship in close proximity to each other, horizontal', 
     });
   });
 
+  const placeSubmarine = (mockGameboard, coordinates) => {
+    const submarine = new Ship(3);
+    mockGameboard.placeShip(submarine, coordinates);
+  };
+
+  // function to test quicker
+  // eslint-disable-next-line max-len
+  const testShipPlacement = (submarineCoordinates, mockShipCoordinates, expectedMessage, mockShipLength = 2) => {
+    const mockGameboard = new Gameboard();
+    placeSubmarine(mockGameboard, submarineCoordinates);
+    const mockShip = new Ship(mockShipLength);
+    expect(mockGameboard.placeShip(mockShip, mockShipCoordinates)).toBe(expectedMessage);
+    for (let i = 0; i < mockShipLength; i++) {
+      expect(mockGameboard.field[mockShipCoordinates[0]][mockShipCoordinates[1] + i]).toBe('');
+    }
+  };
+
+  describe('this.checkProximityMiddle(), checking for upper and lower, for each ', () => {
+    test('Checking for upper of all of ship.length', () => {
+      // order check: first, middle, end
+      testShipPlacement([2, 2], [3, 2], 'Not allowed, upper part found', 3);
+      testShipPlacement([2, 2], [3, 1], 'Not allowed, upper part found', 3);
+      testShipPlacement([2, 2], [3, 0], 'Not allowed, upper part found', 3);
+    });
+
+    test('Checking for the lower of all of ship.length', () => {
+      testShipPlacement([3, 2], [2, 2], 'Not allowed, lower part found', 3);
+      testShipPlacement([3, 2], [2, 1], 'Not allowed, lower part found', 3);
+      testShipPlacement([3, 2], [2, 0], 'Not allowed, lower part found', 3);
+    });
+
+    describe('Checking for out of bound errors', () => {
+      test('Lower left edge, check for lower', () => {
+        testShipPlacement([1, 7], [0, 7], 'Not allowed, lower part found', 3);
+      });
+      test('Lower left edge, check for lower', () => {
+        testShipPlacement([1, 7], [0, 6], 'Not allowed, lower part found', 3);
+      });
+
+      test('Lower left edge, check for upper', () => {
+        testShipPlacement([8, 0], [9, 0], 'Not allowed, upper part found', 3);
+      });
+      test('Lower left edge, check for upper', () => {
+        testShipPlacement([8, 0], [9, 0], 'Not allowed, upper part found', 3);
+      });
+    });
+  });
+
   describe('this.checkProximityRight(), checking for the right upper right, right middle right, right middle right', () => {
-    const placeSubmarine = (mockGameboard, coordinates) => {
-      const submarine = new Ship(3);
-      mockGameboard.placeShip(submarine, coordinates);
-    };
-
-    // function to test quicker
-    const testShipPlacement = (submarineCoordinates, mockShipCoordinates, expectedMessage) => {
-      const mockGameboard = new Gameboard();
-      placeSubmarine(mockGameboard, submarineCoordinates);
-      const mockShip = new Ship(2);
-      expect(mockGameboard.placeShip(mockShip, mockShipCoordinates)).toBe(expectedMessage);
-      expect(mockGameboard.field[mockShipCoordinates[0]][mockShipCoordinates[1]]).toBe('');
-      expect(mockGameboard.field[mockShipCoordinates[0]][mockShipCoordinates[1] + 1]).toBe('');
-    };
-
     test('this.checkProximityRight(), checking for the right upper right, right middle right, right bottom right', () => {
       testShipPlacement([1, 3], [2, 1], 'Not allowed, right upper right found');
       testShipPlacement([2, 3], [2, 1], 'Not allowed, right middle right found');
       testShipPlacement([3, 3], [2, 1], 'Not allowed, right bottom right found');
+    });
+    describe('Checking for out of bound errors', () => {
+      test('Right edge, expect no error', () => {
+        const mock1 = new Gameboard();
+        const submarine = new Ship(3);
+        expect(mock1.placeShip(submarine, [4, 7])).toBe('Success');
+      });
     });
   });
 });
