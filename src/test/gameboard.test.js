@@ -5,7 +5,6 @@ const gameboard = new Gameboard();
 
 describe('Testing the this.placeShip method, placing ships at different locations', () => {
   test('Placing a ship at a coordinate, horizontally', () => {
-    // mock aircraft carrier ship
     const aircraftCarrier = new Ship(5);
     const location = [0, 0];
     gameboard.placeShip(aircraftCarrier, location);
@@ -33,7 +32,7 @@ describe('Testing the this.placeShip method, placing ships at different location
     const location1 = [8, 9];
     const location2 = [8, 1];
     mockGameboard.placeShip(patrolBoat, location1, 'vertical');
-    mockGameboard.placeShip(patrolBoat, location2, 'vertical');
+    mockGameboard.placeShip(patrolBoat, location2, 'horizontal');
 
     expect(mockGameboard.field[8][9]).toBe(patrolBoat);
     expect(mockGameboard.field[8][1]).toBe(patrolBoat);
@@ -95,8 +94,8 @@ describe('Testing the this.placeShip method, placing ships at different location
   });
 });
 
-describe('Testing placing a ship in close proximity to each other, horizontal', () => {
-  describe('this.checkProximityLeft(), checking for the left upper left, left middle left, left bottom left', () => {
+describe('Horizontally placing a ship in close proximity to each other', () => {
+  describe('this.checkProximityFirst(), checking for the left upper left, left middle left, left bottom left', () => {
     test('Checking for each checkProximityLeft() function return value', () => {
       // check the left upper left
       const gameboard1 = new Gameboard();
@@ -129,7 +128,7 @@ describe('Testing placing a ship in close proximity to each other, horizontal', 
       expect(gameboard3.field[2][7]).toBe('');
     });
 
-    describe('this.checkProximityLeft() for out of bounds errors and placing at edges', () => {
+    describe('Checking for out of bounds errors and placing at edges', () => {
       test('Placing a ship at the lop left edge is allowed', () => {
         const mockGameboard = new Gameboard();
         const patrolBoat = new Ship(2);
@@ -175,9 +174,9 @@ describe('Testing placing a ship in close proximity to each other, horizontal', 
 
   // function to test quicker
   // eslint-disable-next-line max-len
-  const testShipPlacement = (submarineCoordinates, mockShipCoordinates, expectedMessage, mockShipLength = 2) => {
+  const testShipPlacement = (actualCoordinates, mockShipCoordinates, expectedMessage, mockShipLength = 2) => {
     const mockGameboard = new Gameboard();
-    placeSubmarine(mockGameboard, submarineCoordinates);
+    placeSubmarine(mockGameboard, actualCoordinates);
     const mockShip = new Ship(mockShipLength);
     expect(mockGameboard.placeShip(mockShip, mockShipCoordinates)).toBe(expectedMessage);
     for (let i = 0; i < mockShipLength; i++) {
@@ -232,164 +231,85 @@ describe('Testing placing a ship in close proximity to each other, horizontal', 
   });
 });
 
-// describe('Testing placing a ship in close proximity to each other, Part 2', () => {
-//   test('Allow placing ships with one space between, vertically', () => {
-//     // standard tests
-//     const mockGameboard = new Gameboard();
-//     const aircraftCarrier = new Ship(5);
-//     const patrolBoat = new Ship(2);
-//     mockGameboard.placeShip(aircraftCarrier, [1, 4], 'vertical');
-//     mockGameboard.placeShip(patrolBoat, [2, 6], 'vertical');
+describe('Vertically placing ships in close proximity', () => {
+  // function to test quicker, but for vertical
+  const testShipPlacementVertical = (
+    actualCoordinates,
+    detectingShipCoordinates,
+    expectedMessage,
+    checkPlacement = true,
+    actualShipLength = 2,
+    detectingShipLength = 3,
+    actualShipMode = 'vertical',
+  ) => {
+    const newGameboard = new Gameboard();
+    const placedShip = new Ship(actualShipLength);
+    newGameboard.placeShip(placedShip, actualCoordinates, actualShipMode);
 
-//     expect(mockGameboard.field[1][4]).toBe(aircraftCarrier);
-//     expect(mockGameboard.field[2][4]).toBe(aircraftCarrier);
-//     expect(mockGameboard.field[3][4]).toBe(aircraftCarrier);
-//     expect(mockGameboard.field[4][4]).toBe(aircraftCarrier);
-//     expect(mockGameboard.field[5][4]).toBe(aircraftCarrier);
+    const detectingShip = new Ship(detectingShipLength);
+    expect(newGameboard.placeShip(detectingShip, detectingShipCoordinates, 'vertical')).toBe(expectedMessage);
 
-//     expect(mockGameboard.field[2][6]).toBe(patrolBoat);
-//     expect(mockGameboard.field[3][6]).toBe(patrolBoat);
-//   });
+    // expect the detecting ship to not have been placed
+    if (checkPlacement === true) {
+      for (let i = 0; i < detectingShipLength; i++) {
+        expect(newGameboard.field[detectingShipCoordinates[0] + i][detectingShipCoordinates[1]]).toBe('');
+      }
+    }
+  };
 
-//   test('Placing another ship in close proximity should not be allowed, vertically', () => {
-//     // scenario one, both in middle
-//     const mockGameboard = new Gameboard();
-//     const patrolBoat1 = new Ship(2);
-//     const patrolBoat2 = new Ship(2);
+  describe('this.checkProximityFirst()', () => {
+    test('Checking for the upper left, upper middle, upper right', () => {
+      testShipPlacementVertical([0, 3], [2, 4], 'Not allowed, upper left found');
+      testShipPlacementVertical([0, 4], [2, 4], 'Not allowed, upper middle found');
+      testShipPlacementVertical([0, 5], [2, 4], 'Not allowed, upper right found');
+    });
 
-//     mockGameboard.placeShip(patrolBoat1, [3, 5], 'vertical');
+    describe('Check for out of bound errors', () => {
+      test('Top left edge, top middle edge, top right edge', () => {
+        testShipPlacementVertical([0, 0], [0, 3], 'Success', false, 2, 4);
+        testShipPlacementVertical([0, 0], [0, 6], 'Success', false, 2, 1);
+        testShipPlacementVertical([0, 0], [0, 9], 'Success', false, 2, 5);
+      });
+    });
+  });
 
-//     expect(mockGameboard.placeShip(patrolBoat2, [4, 4], 'vertical')).toBe("Can't place ship here, another ship in close proximity");
-//     expect(mockGameboard.field[4][4]).toBe('');
-//     expect(mockGameboard.field[5][4]).toBe('');
+  describe('this.checkProximityMiddle()', () => {
+    test('Checking for each of all of the left side', () => {
+      testShipPlacementVertical([3, 2], [3, 4], 'Not allowed, left side found', true, 2, 3, 'horizontal');
+      testShipPlacementVertical([4, 2], [3, 4], 'Not allowed, left side found', true, 2, 3, 'horizontal');
+      testShipPlacementVertical([5, 2], [3, 4], 'Not allowed, left side found', true, 2, 3, 'horizontal');
+    });
 
-//     expect(mockGameboard.field[3][5]).toBe(patrolBoat1);
-//     expect(mockGameboard.field[4][5]).toBe(patrolBoat1);
+    test('Checking for each of all of the right side', () => {
+      testShipPlacementVertical([3, 5], [3, 4], 'Not allowed, right side found', true, 2, 3, 'horizontal');
+      testShipPlacementVertical([4, 5], [3, 4], 'Not allowed, right side found', true, 2, 3, 'horizontal');
+      testShipPlacementVertical([5, 5], [3, 4], 'Not allowed, right side found', true, 2, 3, 'horizontal');
+    });
 
-//     const gameboardV = new Gameboard();
-//     const patrolBoatV1 = new Ship(2);
-//     const patrolBoatV2 = new Ship(3);
+    describe('Checking for out of bound errors', () => {
+      test('Left edge and right edge', () => {
+        testShipPlacementVertical([3, 1], [3, 0], 'Not allowed, right side found');
+        testShipPlacementVertical([3, 8], [3, 9], 'Not allowed, left side found');
+      });
+    });
+  });
 
-//     gameboardV.placeShip(patrolBoatV1, [1, 1], 'vertical');
-//     expect(gameboardV.placeShip(patrolBoatV2, [2, 2], 'vertical')).toBe("Can't place ship here, another ship in close proximity");
-//     expect(gameboardV.field[1][1]).toBe(patrolBoatV1);
-//     expect(gameboardV.field[2][1]).toBe(patrolBoatV1);
-//   });
+  describe('this.checkProximityLast()', () => {
+    test('Bottom left, bottom middle, bottom right', () => {
+      testShipPlacementVertical([6, 3], [3, 4], 'Not allowed, bottom left found');
+      testShipPlacementVertical([6, 4], [3, 4], 'Not allowed, bottom middle found');
+      testShipPlacementVertical([6, 5], [3, 4], 'Not allowed, bottom right found');
+    });
 
-//   test('Placing another ship in close proximity should not be allowed, horizontally', () => {
-//     const mockGameboard = new Gameboard();
-//     const patrolBoat1 = new Ship(2);
-//     const patrolBoat2 = new Ship(2);
-
-//     mockGameboard.placeShip(patrolBoat1, [7, 3]);
-
-//     expect(mockGameboard.placeShip(patrolBoat2, [7, 5])).toBe("Can't place ship here, another ship in close proximity");
-
-//     // expect patrol boat 1 to be placed
-//     expect(mockGameboard.field[7][3]).toBe(patrolBoat1);
-//     expect(mockGameboard.field[7][4]).toBe(patrolBoat1);
-//     // expect other fields to be empty
-//     expect(mockGameboard.field[7][5]).toBe('');
-//     expect(mockGameboard.field[7][6]).toBe('');
-//   });
-
-//   test('Placing a ship in close proximity should not be allowed', () => {
-//     const mockGameboard = new Gameboard();
-//     const battleship = new Ship(4);
-//     const destroyer = new Ship(3);
-
-//     mockGameboard.placeShip(battleship, [3, 3], 'vertical');
-
-//     expect(mockGameboard.placeShip(destroyer, [5, 4])).toBe("Can't place ship here, another ship in close proximity");
-
-//     // expect the destroyer fields to be empty
-//     expect(mockGameboard.field[5][4]).toBe('');
-//     expect(mockGameboard.field[5][5]).toBe('');
-//     expect(mockGameboard.field[5][6]).toBe('');
-
-//     // expect other fields to be battleship
-//     expect(mockGameboard.field[3][3]).toBe(battleship);
-//     expect(mockGameboard.field[4][3]).toBe(battleship);
-//     expect(mockGameboard.field[5][3]).toBe(battleship);
-//     expect(mockGameboard.field[6][3]).toBe(battleship);
-//   });
-
-//   test('Placing another ship near a ship should not be allowed, horizontally and vertically should not make a difference', () => {
-//     const mockGameboard = new Gameboard();
-//     const patrolBoatH1 = new Ship(2);
-//     const patrolBoatH2 = new Ship(2);
-
-//     // horizontal, placing ship, only patrolBoatH1 allowed, other spaces should be empty
-//     mockGameboard.placeShip(patrolBoatH1, [7, 2]);
-//     expect(mockGameboard.field[7][2]).toBe(patrolBoatH1);
-//     expect(mockGameboard.field[7][3]).toBe(patrolBoatH1);
-
-//     expect(mockGameboard.placeShip(patrolBoatH2, [7, 4])).toBe("Can't place ship here, another ship in close proximity");
-//     expect(mockGameboard.field[7][4]).toBe('');
-//     expect(mockGameboard.field[7][5]).toBe('');
-
-//     // vertical, placing ship
-//     const patrolBoatV1 = new Ship(2);
-//     const patrolBoatV2 = new Ship(2);
-//     mockGameboard.placeShip(patrolBoatV1, [4, 7], 'vertical');
-//     expect(mockGameboard.field[4][7]).toBe(patrolBoatV1);
-//     expect(mockGameboard.field[5][7]).toBe(patrolBoatV1);
-
-//     // place other ship, expect to not be allowed, and be empty
-//     expect(mockGameboard.placeShip(patrolBoatV2, [4, 8], 'vertical')).toBe("Can't place ship here, another ship in close proximity");
-//     expect(mockGameboard.field[4][8]).toBe('');
-//     expect(mockGameboard.field[5][8]).toBe('');
-//   });
-
-//   test('Allow placing a ship in close proximity at the edges', () => {
-//     const mockGameboard = new Gameboard();
-//     const patrolBoat = new Ship(2);
-//     const submarine = new Ship(3);
-
-//     mockGameboard.placeShip(submarine, [7, 9], 'vertical');
-//     mockGameboard.placeShip(patrolBoat, [9, 6]);
-
-//     // expect both fields to be submarine and patrolBoat
-//     expect(mockGameboard.field[7][9]).toBe(submarine);
-//     expect(mockGameboard.field[8][9]).toBe(submarine);
-//     expect(mockGameboard.field[9][9]).toBe(submarine);
-
-//     expect(mockGameboard.field[9][6]).toBe(patrolBoat);
-//     expect(mockGameboard.field[9][7]).toBe(patrolBoat);
-//   });
-
-//   test('Placing a ship in close proximity at the edges should not be allowed, horizontally and vertically', () => {
-//     const mockGameboard = new Gameboard();
-//     const patrolBoat = new Ship(2);
-//     const submarine = new Ship(3);
-
-//     mockGameboard.placeShip(submarine, [7, 9], 'vertical');
-
-//     expect(mockGameboard.placeShip(patrolBoat, [9, 7])).toBe("Can't place ship here, another ship in close proximity");
-
-//     // expect other fields to be submarine
-//     expect(mockGameboard.field[7][9]).toBe(submarine);
-//     expect(mockGameboard.field[8][9]).toBe(submarine);
-//     expect(mockGameboard.field[9][9]).toBe(submarine);
-
-//     // expect patrolBoat fields to be empty
-//     expect(mockGameboard.field[9][7]).toBe('');
-//     expect(mockGameboard.field[9][8]).toBe('');
-
-//     // horizontal
-//     const patrolBoat1 = new Ship(2);
-//     const patrolBoat2 = new Ship(2);
-
-//     mockGameboard.placeShip(patrolBoat1, [0, 8]);
-//     expect(mockGameboard.field[0][8]).toBe(patrolBoat1);
-//     expect(mockGameboard.field[0][9]).toBe(patrolBoat1);
-
-//     // expect patrolBoat fields to be empty
-//     expect(mockGameboard.placeShip(patrolBoat2, [1, 9], 'vertical')).toBe("Can't place ship here, another ship in close proximity");
-//     expect(mockGameboard[1][9]).toBe('');
-//     expect(mockGameboard[2][9]).toBe('');
-//   });
-// });
+    describe('Checking for out of bound errors', () => {
+      test('Bottom edge', () => {
+        testShipPlacementVertical([0, 0], [7, 1], 'Success', false);
+        testShipPlacementVertical([0, 0], [7, 5], 'Success', false);
+        testShipPlacementVertical([0, 0], [7, 9], 'Success', false);
+      });
+    });
+  });
+});
 
 // receiveAttack tests
 describe('Testing this.receiveAttack method, hitting other ships', () => {
