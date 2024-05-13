@@ -5,6 +5,9 @@ body {
   display: grid;
   grid-template-rows: 10% 85% 5%;
   height: 100vh;
+
+  background-color: rgb(57, 55, 55);
+  color: white;
 }
 
 .unselectable {
@@ -73,3 +76,10 @@ main {
   cursor: pointer;
 } 
 
+.atTurn {
+  opacity: 1;
+}
+
+.notAtTurn {
+  opacity: 0.5;
+}

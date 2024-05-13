@@ -1,6 +1,4 @@
 const Ship = require('../js/ship');
-// const Player = require('../js/player');
-// const Gameboard = require('../js/gameboard');
 
 class GUI {
   constructor(player1, player2, field1, field2, turnBoard) {
@@ -59,11 +57,13 @@ class GUI {
     this.createField(this.player1, this.field1);
     this.createField(this.player2, this.field2);
 
-    // display the turn
-    this.displayTurn();
+    // show that its player1's turn
+    this.changeOpacity();
 
     if (this.player1Turn === true) {
-      this.field1.addEventListener('click', this.clickHandler); // add an event listener to each square of the parent div
+      this.player1Turn = false;
+      this.player2Turn = true;
+      this.field2.addEventListener('click', this.clickHandler); // add an event listener to each square of the parent div
     }
   }
 
@@ -78,9 +78,15 @@ class GUI {
         const coords = coordsRaw.split(',');
 
         // check if placement is allowed first, DISALLOW IF INVALID!
-        if (this.player1.gameboard.receiveAttack(coords) !== 'Success') {
-          console.log(this.player1.gameboard.receiveAttack(coords));
+        if (this.player1.gameboard.receiveAttack(coords) === 'Success') {
+          this.displayBoardMessage(this.player1.gameboard.receiveAttack(coords));
         } else {
+          // if player hits ship, change to Hit!
+
+          // if player hits nothing, change to Miss!!
+
+          this.changeOpacity();
+
           // disable player1 EL and set to false
           this.field1.removeEventListener('click', this.clickHandler);
           this.player1Turn = false;
@@ -102,33 +108,62 @@ class GUI {
         const coordsRaw = clickedElement.getAttribute('coords');
         const coords = coordsRaw.split(',');
 
-        // disable player2 EL and set to false
-        this.field2.removeEventListener('click', this.clickHandler);
-        this.player2Turn = false;
+        if (this.player2.gameboard.receiveAttack(coords) !== 'Success') {
+          this.displayBoardMessage(this.player2.gameboard.receiveAttack(coords));
+        } else {
+          this.changeOpacity();
 
-        // enable player1 EL and set to true
-        this.field1.addEventListener('click', this.clickHandler);
-        this.player1Turn = true;
+          // disable player2 EL and set to false
+          this.field2.removeEventListener('click', this.clickHandler);
+          this.player2Turn = false;
+
+          // enable player1 EL and set to true
+          this.field1.addEventListener('click', this.clickHandler);
+          this.player1Turn = true;
+
+          // refresh screen
+          this.removeField(this.field2);
+          this.createField(this.player2, this.field2);
+        }
       }
     }
   }
 
-  removeTurn() {
+  removeBoardMessage() {
     while (this.turnBoard.firstChild) {
       this.turnBoard.removeChild(this.turnBoard.firstChild);
     }
   }
 
-  displayTurn() {
+  displayBoardMessage(message) {
+    if (message) {
+      this.removeBoardMessage();
+      this.turnBoard.textContent = message;
+    }
+  }
+
+  changeOpacity() {
+    // ALSOOOO REMOVE HOVER CSS FROM OTHER FIELD!
+
     // if player one's turn
     if (this.player1Turn === true) {
-      // make player2 field brighter
-      // make player1 field darker
       // change text content to "Turn: Player 1"
-      this.turnBoard.textContent = 'Turn: Player 1';
+      // this.turnBoard.textContent = 'Turn: Player 1';
+
+      // make player 2 field brighter
+      this.field2.classList.remove('notAtTurn');
+      this.field2.classList.add('atTurn');
+      // make player 1 field darker
+      this.field1.classList.add('notAtTurn');
     }
-    else {
-      this.turnBoard.textContent = 'Turn: Player 2';
+    else if (this.player2Turn === true) {
+      // this.turnBoard.textContent = 'Turn: Player 2';
+
+      // make player 1 field brighter
+      this.field1.classList.remove('notAtTurn');
+      this.field1.classList.add('atTurn');
+      // make player 2 field darker
+      this.field2.classList.add('notAtTurn');
     }
   }
 }
