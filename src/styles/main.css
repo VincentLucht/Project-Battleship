@@ -1,3 +1,75 @@
 body {
-  background-color: orange;
+  margin: 0;
+  padding: 0;
+
+  display: grid;
+  grid-template-rows: 10% 85% 5%;
+  height: 100vh;
 }
+
+.unselectable {
+  -webkit-user-select: none;  /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* Internet Explorer/Edge */
+  user-select: none;         /* non-prefixed version, Chrome, Edge, Opera and Firefox */
+}
+
+header {
+  border-bottom: 1px solid grey;
+}
+footer {
+  border-top: 1px solid grey;
+}
+
+main {
+  display: grid;
+  grid-template-rows: 0.2fr 0.8fr;
+  gap: 5%;
+}
+
+/* turn board */
+.turnBoardWrapper {
+  display: grid;
+  justify-content: center;
+  align-items: last baseline;
+}
+
+.turnBoard {
+  display: grid;
+  place-content: center;
+
+  border: 1px solid grey;
+  width: 200px;
+  height: 50px;
+}
+
+/* fields */
+.fieldWrapper {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: space-around;
+  align-items: baseline;
+}
+
+.field1, .field2 {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+
+  border: 1px solid grey;
+
+  width: 30vw;
+  height: 30vw;
+
+  min-width: 400px;
+  min-height: 400px;
+}
+
+.field1>div, .field2>div {
+  border: 1px solid grey;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+} 
+
