@@ -77,13 +77,18 @@ class GUI {
         const coordsRaw = clickedElement.getAttribute('coords');
         const coords = coordsRaw.split(',');
 
+        const fieldType = this.player2.gameboard.field[coords[0]][coords[1]];
+
         // check if placement is allowed first, DISALLOW IF INVALID!
-        if (this.player1.gameboard.receiveAttack(coords) === 'Success') {
+        if (this.player1.gameboard.receiveAttack(coords) !== 'Success') {
           this.displayBoardMessage(this.player1.gameboard.receiveAttack(coords));
         } else {
-          // if player hits ship, change to Hit!
-
-          // if player hits nothing, change to Miss!!
+          if (fieldType === '') {
+            this.displayBoardMessage('Miss!');
+          }
+          else {
+            this.displayBoardMessage('Hit!');
+          }
 
           this.changeOpacity();
 
@@ -108,10 +113,19 @@ class GUI {
         const coordsRaw = clickedElement.getAttribute('coords');
         const coords = coordsRaw.split(',');
 
+        const fieldType = this.player2.gameboard.field[coords[0]][coords[1]];
+
         if (this.player2.gameboard.receiveAttack(coords) !== 'Success') {
           this.displayBoardMessage(this.player2.gameboard.receiveAttack(coords));
         } else {
           this.changeOpacity();
+
+          if (fieldType === '') {
+            this.displayBoardMessage('Miss!');
+          }
+          else {
+            this.displayBoardMessage('Hit!');
+          }
 
           // disable player2 EL and set to false
           this.field2.removeEventListener('click', this.clickHandler);

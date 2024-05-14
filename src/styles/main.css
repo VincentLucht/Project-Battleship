@@ -1,3 +1,8 @@
+@font-face {
+  font-family: Metadannye;
+  src: url('../fonts/Metadannye.ttf')
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -8,6 +13,7 @@ body {
 
   background-color: rgb(57, 55, 55);
   color: white;
+  font-family: 'Roboto', sans-serif;
 }
 
 .unselectable {
@@ -19,6 +25,12 @@ body {
 
 header {
   border-bottom: 1px solid grey;
+  font-family:  Metadannye;
+  font-size: 5rem;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 footer {
   border-top: 1px solid grey;
@@ -82,4 +94,38 @@ main {
 
 .notAtTurn {
   opacity: 0.5;
+}
+
+
+footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #161a1e;
+}
+
+.footerWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+
+  font-size: 16px;
+}
+.footerWrapper>p>span {
+  text-decoration: underline;
+}
+
+#github {
+  cursor: pointer;
+  width: 30px;
+  transition: transform 0.3s ease;
+}
+
+#github:hover {
+  transform: scale(1.2);
+}
+
+a:visited {
+  color: white;
 }
