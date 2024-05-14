@@ -24,22 +24,20 @@ body {
 }
 
 header {
-  border-bottom: 1px solid grey;
-  font-family:  Metadannye;
+  font-family: Metadannye;
   font-size: 5rem;
 
   display: flex;
   justify-content: center;
   align-items: center;
-}
-footer {
-  border-top: 1px solid grey;
+  background-color: #161a1e;
 }
 
 main {
   display: grid;
   grid-template-rows: 0.2fr 0.8fr;
   gap: 5%;
+  background-color:  #1e2428;
 }
 
 /* turn board */
@@ -67,11 +65,10 @@ main {
 }
 
 .field1, .field2 {
+  border: 2px solid #002B66;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-template-rows: repeat(10, 1fr);
-
-  border: 1px solid grey;
 
   width: 30vw;
   height: 30vw;
@@ -81,12 +78,17 @@ main {
 }
 
 .field1>div, .field2>div {
-  border: 1px solid grey;
+  border: 2px solid #002B66;
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: pointer;
+  cursor: crosshair;
+  background-color: #2489DA;
 } 
+
+.field1>div:hover, .field2>div:hover {
+  background-color: purple;
+}
 
 .atTurn {
   opacity: 1;

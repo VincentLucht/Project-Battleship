@@ -294,6 +294,7 @@ class Gameboard {
         return this.placementAllowed(ship, location);
       }
     }
+
     else if (mode === 'vertical') {
       if (this.placementAllowed(ship, location, 'vertical') === true) {
         // check for placement
@@ -320,7 +321,7 @@ class Gameboard {
     if (field === 'miss' || field === 'hit') {
       return "Can't hit an already attacked spot";
     }
-    // if the space is empty, change this.[row][col] to 'hit'
+    // if the space is empty, change this.[row][col] to 'miss'
     if (field === '') {
       this.field[row][col] = 'miss';
     }

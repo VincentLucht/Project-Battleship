@@ -29,12 +29,16 @@ class GUI {
         const div = document.createElement('div');
         if (typeof (player.gameboard.field[i][j]) === 'object') {
           div.textContent = '•';
+          div.style.fontSize = '2vw';
         }
         else if (player.gameboard.field[i][j] === 'hit') {
-          div.textContent = 'x'; // change to a red x?
+          div.textContent = '✕'; // use multiplication, so that it centers!
+          div.style.fontSize = '2vw'; // dynamic font size
+          div.style.backgroundColor = 'red';
         }
         else if (player.gameboard.field[i][j] === 'miss') {
-          div.textContent = 'x'; // user other x, so that it centers!
+          div.textContent = '✕';
+          div.style.fontSize = '1vw';
         }
         else {
           div.textContent = player.gameboard.field[i][j];
@@ -77,17 +81,28 @@ class GUI {
         const coordsRaw = clickedElement.getAttribute('coords');
         const coords = coordsRaw.split(',');
 
-        const fieldType = this.player2.gameboard.field[coords[0]][coords[1]];
+        let shipSunk = false;
+
+        // check if the ship sank
+        const fieldContent = this.player1.gameboard.field[coords[0]][coords[1]];
+        if (typeof (fieldContent) === 'object') {
+          if (fieldContent.timesHit === fieldContent.length - 1) {
+            this.displayBoardMessage('Ship sunk!');
+            shipSunk = true;
+          }
+        }
 
         // check if placement is allowed first, DISALLOW IF INVALID!
         if (this.player1.gameboard.receiveAttack(coords) !== 'Success') {
           this.displayBoardMessage(this.player1.gameboard.receiveAttack(coords));
         } else {
-          if (fieldType === '') {
-            this.displayBoardMessage('Miss!');
-          }
-          else {
-            this.displayBoardMessage('Hit!');
+          if (shipSunk !== true) { // don't change board, if ship is sunk
+            if (fieldContent === '') {
+              this.displayBoardMessage('Miss!');
+            }
+            else {
+              this.displayBoardMessage('Hit!');
+            }
           }
 
           this.changeOpacity();
@@ -113,19 +128,31 @@ class GUI {
         const coordsRaw = clickedElement.getAttribute('coords');
         const coords = coordsRaw.split(',');
 
-        const fieldType = this.player2.gameboard.field[coords[0]][coords[1]];
+        const fieldContent = this.player2.gameboard.field[coords[0]][coords[1]];
+
+        let shipSunk = false;
+
+        // check if the ship sank
+        if (typeof (fieldContent) === 'object') {
+          if (fieldContent.timesHit === fieldContent.length - 1) {
+            this.displayBoardMessage('Ship sunk!');
+            shipSunk = true;
+          }
+        }
 
         if (this.player2.gameboard.receiveAttack(coords) !== 'Success') {
           this.displayBoardMessage(this.player2.gameboard.receiveAttack(coords));
         } else {
-          this.changeOpacity();
+          if (shipSunk !== true) {
+            if (fieldContent === '') {
+              this.displayBoardMessage('Miss!');
+            }
+            else {
+              this.displayBoardMessage('Hit!');
+            }
+          }
 
-          if (fieldType === '') {
-            this.displayBoardMessage('Miss!');
-          }
-          else {
-            this.displayBoardMessage('Hit!');
-          }
+          this.changeOpacity();
 
           // disable player2 EL and set to false
           this.field2.removeEventListener('click', this.clickHandler);
