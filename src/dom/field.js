@@ -82,7 +82,8 @@ class GUI {
         const coords = coordsRaw.split(',');
         const row = parseInt(coords[0], 10);
         const col = parseInt(coords[1], 10);
-        console.log(this.player1.gameboard.checkMode([row, col]));
+        // console.log(this.player1.gameboard.checkMode([row, col])); // run before receiveAttack
+        // console.log(this.player1.gameboard.determineStartingPoint([row, col]));
 
         let shipSunk = false;
 
@@ -205,6 +206,7 @@ class GUI {
       this.field2.classList.remove('notAtTurn');
       this.field2.classList.add('atTurn');
       // make player 1 field darker
+      this.field1.classList.remove('atTurn');
       this.field1.classList.add('notAtTurn');
     }
     else if (this.player2Turn === true) {
@@ -214,6 +216,7 @@ class GUI {
       this.field1.classList.remove('notAtTurn');
       this.field1.classList.add('atTurn');
       // make player 2 field darker
+      this.field2.classList.remove('atTurn');
       this.field2.classList.add('notAtTurn');
     }
   }
