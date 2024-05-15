@@ -80,11 +80,14 @@ class GUI {
         // put coords here, can otherwise click on background div accidentally, resulting in null
         const coordsRaw = clickedElement.getAttribute('coords');
         const coords = coordsRaw.split(',');
+        const row = parseInt(coords[0], 10);
+        const col = parseInt(coords[1], 10);
+        console.log(this.player1.gameboard.checkMode([row, col]));
 
         let shipSunk = false;
 
         // check if the ship sank
-        const fieldContent = this.player1.gameboard.field[coords[0]][coords[1]];
+        const fieldContent = this.player1.gameboard.field[row][col];
         if (typeof (fieldContent) === 'object') {
           if (fieldContent.timesHit === fieldContent.length - 1) {
             this.displayBoardMessage('Ship sunk!');
@@ -95,30 +98,35 @@ class GUI {
         // check if placement is allowed first, DISALLOW IF INVALID!
         if (this.player1.gameboard.receiveAttack(coords) !== 'Success') {
           this.displayBoardMessage(this.player1.gameboard.receiveAttack(coords));
-        } else {
-          if (shipSunk !== true) { // don't change board, if ship is sunk
-            if (fieldContent === '') {
-              this.displayBoardMessage('Miss!');
-            }
-            else {
-              this.displayBoardMessage('Hit!');
-            }
+        } else if (shipSunk !== true) { // don't change board, if ship is sunk
+          if (fieldContent === '') {
+            this.displayBoardMessage('Miss!');
+
+            this.changeOpacity();
+
+            // disable player1 EL and set to false
+            this.field1.removeEventListener('click', this.clickHandler);
+            this.player1Turn = false;
+
+            // enable player2 EL and set to true
+            this.field2.addEventListener('click', this.clickHandler);
+            this.player2Turn = true;
+
+            // refresh screen
+            this.removeField(this.field1);
+            this.createField(this.player1, this.field1);
           }
-
-          this.changeOpacity();
-
-          // disable player1 EL and set to false
-          this.field1.removeEventListener('click', this.clickHandler);
-          this.player1Turn = false;
-
-          // enable player2 EL and set to true
-          this.field2.addEventListener('click', this.clickHandler);
-          this.player2Turn = true;
-
-          // refresh screen
-          this.removeField(this.field1);
-          this.createField(this.player1, this.field1);
+          else if (typeof (fieldContent) === 'object') {
+            this.displayBoardMessage('Hit!');
+            // refresh screen
+            this.removeField(this.field1);
+            this.createField(this.player1, this.field1);
+          }
         }
+
+        // refresh screen regardless
+        this.removeField(this.field1);
+        this.createField(this.player1, this.field1);
       }
     }
 
@@ -127,8 +135,10 @@ class GUI {
       if (clickedElement.classList.contains('unselectable')) {
         const coordsRaw = clickedElement.getAttribute('coords');
         const coords = coordsRaw.split(',');
+        const row = parseInt(coords[0], 10);
+        const col = parseInt(coords[1], 10);
 
-        const fieldContent = this.player2.gameboard.field[coords[0]][coords[1]];
+        const fieldContent = this.player2.gameboard.field[row][col];
 
         let shipSunk = false;
 

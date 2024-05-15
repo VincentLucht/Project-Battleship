@@ -14,6 +14,110 @@ class Gameboard {
     ];
   }
 
+  checkMode(startingPoint) {
+    const row = startingPoint[0];
+    const col = startingPoint[1];
+
+    // horizontal right
+    if (
+      this.field[row] &&
+      this.field[row][col + 1] &&
+      (typeof (this.field[row][col + 1]) === 'object' || this.field[row][col + 1] === 'hit')
+    ) {
+      return 'horizontal';
+    }
+    // horizontal left
+    if (
+      this.field[row] &&
+      this.field[row][col - 1] &&
+      (typeof (this.field[row][col - 1]) === 'object' || this.field[row][col - 1] === 'hit')
+    ) {
+      return 'horizontal';
+    }
+
+    // vertical upper
+    if (
+      this.field[row + 1] &&
+      this.field[row + 1][col] &&
+      (typeof (this.field[row + 1][col]) === 'object' || this.field[row + 1][col] === 'hit')
+    ) {
+      return 'vertical';
+    }
+    // vertical lower
+    if (
+      this.field[row - 1] &&
+      this.field[row - 1][col] &&
+      (typeof (this.field[row - 1][col]) === 'object' || this.field[row - 1][col] === 'hit')
+    ) {
+      return 'vertical';
+    }
+
+    return 'No mode determined';
+  }
+
+  checkStartingPoint(coordinates) {
+
+  }
+
+  hitSurroundingsFirst(row, col, mode) {
+    if (mode === 'horizontal') {
+      // left upper left: this.field[row - 1][col - 1]
+      if (
+        this.field[row - 1] && // check if row exists first, otherwise access's undefined
+        this.field[row - 1][col - 1]
+      ) {
+        this.field[row - 1][col - 1] = 'miss';
+      }
+
+      // left middle left: this.field[row][col - 1]
+      if (
+        this.field[row] &&
+        this.field[row][col - 1]
+      ) {
+        this.field[row][col - 1] = 'miss';
+      }
+
+      // left bottom left: this.field[row + 1][col - 1]
+      if (
+        this.field[row + 1] &&
+        this.field[row + 1][col - 1]
+      ) {
+        this.field[row + 1][col - 1] = 'miss';
+      }
+
+      else {
+      }
+    }
+
+    else if (mode === 'vertical') {
+
+    }
+  }
+
+  hitSurroundingsMiddle(coordinates, mode) {
+
+  }
+
+  hitSurroundingsLast(coordinates, mode) {
+
+  }
+
+  hitSurroundings(coordinates) {
+    const row = coordinates[0];
+    const col = coordinates[1];
+    // if a ship is sunk, it hits the surrounding areas
+    if (this.checkMode(coordinates) === 'horizontal') {
+      const mode = 'horizontal';
+      // assign miss to left
+      this.hitSurroundingsFirst(row, col, mode);
+      // assign miss to middle
+      // assign miss to right
+    }
+    else if (this.checkMode(coordinates) === 'vertical') {
+      const mode = 'vertical';
+    }
+  }
+
   checkProximityFirst(startingPoint, mode) {
     // checks if there any ships on the first part of the ship
 
@@ -126,7 +230,7 @@ class Gameboard {
         ) {
           return 'Not allowed, left side found';
         }
-        // right
+        // righ
         if (
           this.field[row + i] &&
           this.field[row + i][col + 1] &&
@@ -330,6 +434,9 @@ class Gameboard {
       const ship = field;
       // send a hit attack to that ship
       ship.hit();
+
+      // HIT SURROUNDINGS!
+
       // change the coords to 'hit'
       this.field[row][col] = 'hit';
     }

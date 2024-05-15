@@ -51,7 +51,7 @@ main {
   display: grid;
   place-content: center;
 
-  border: 1px solid grey;
+  border: 2px solid white;
   width: 200px;
   height: 50px;
 }
@@ -130,4 +130,23 @@ footer {
 
 a:visited {
   color: white;
+}
+
+@keyframes color-change-green {
+  0% {
+    color: white;
+    border-color: white;
+  }
+  50% {
+    color: rgb(7, 166, 7);
+    border-color: rgb(7, 166, 7);; 
+  }
+  100% {
+    color: white;
+    border-color: white;;
+  }
+}
+
+.color-change-green {
+  animation: color-change-green 1.5s infinite;
 }
