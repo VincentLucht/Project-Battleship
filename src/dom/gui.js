@@ -22,6 +22,17 @@ class GUI {
     player.gameboard.placeShip(new Ship(3), [9, 0]); // change back to 2
   }
 
+  hitField() {
+
+  }
+
+  missField(clickedElement) {
+    // eslint-disable-next-line no-param-reassign
+    clickedElement.textContent = '✕';
+    // eslint-disable-next-line no-param-reassign
+    clickedElement.style.fontSize = '1vw';
+  }
+
   createField(player, field, mode) {
     // creates the 10x10 square gameboard
 
@@ -117,6 +128,7 @@ class GUI {
         } else if (shipSunk !== true) { // don't change board, if ship is sunk
           if (fieldContent === '') {
             this.displayBoardMessage('Miss!');
+            this.missField(clickedElement);
 
             this.changeOpacity();
 
@@ -129,20 +141,20 @@ class GUI {
             this.player2Turn = true;
 
             // refresh screen
-            this.removeField(this.field1);
-            this.createField(this.player1, this.field1);
+            // this.removeField(this.field1);
+            // this.createField(this.player1, this.field1);
           }
           else if (typeof (fieldContent) === 'object') {
             this.displayBoardMessage('Hit!');
             // refresh screen
-            this.removeField(this.field1);
-            this.createField(this.player1, this.field1);
+            // this.removeField(this.field1);
+            // this.createField(this.player1, this.field1);
           }
         }
 
         // refresh screen regardless
-        this.removeField(this.field1);
-        this.createField(this.player1, this.field1);
+        // this.removeField(this.field1);
+        // this.createField(this.player1, this.field1);
       }
     }
 
@@ -189,8 +201,8 @@ class GUI {
           this.player1Turn = true;
 
           // refresh screen
-          this.removeField(this.field2);
-          this.createField(this.player2, this.field2);
+          // this.removeField(this.field2);
+          // this.createField(this.player2, this.field2);
         }
       }
     }

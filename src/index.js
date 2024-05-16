@@ -1,5 +1,5 @@
 import './styles/main.css';
-import GUI from './dom/field';
+import GUI from './dom/gui';
 import Player from './js/player';
 import Gameboard from './js/gameboard';
 

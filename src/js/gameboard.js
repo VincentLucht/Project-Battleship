@@ -256,7 +256,7 @@ class Gameboard {
       // bottom right
       if (
         this.field[row + 1] &&
-        (this.field[row + 1][col + 1] === '' || this.field[row + 1][col + 1] === 'miss')
+        (this.field[row + 1][col + 1] === '' || this.field[row + 1][col + 1] === 'miss')
       ) {
         this.field[row + 1][col + 1] = 'miss';
       }
