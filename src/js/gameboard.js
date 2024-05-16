@@ -14,7 +14,8 @@ class Gameboard {
     ];
   }
 
-  checkMode(startingPoint) {
+  determineMode(startingPoint) {
+    // checks the mode of the ship that is in the coordinates
     const row = startingPoint[0];
     const col = startingPoint[1];
 
@@ -55,16 +56,65 @@ class Gameboard {
     return 'No mode determined';
   }
 
-  checkStartingPoint(coordinates) {
+  determineStartingPoint(coordinates) {
+    // determines the starting point of the ship
+    const row = coordinates[0];
+    const col = coordinates[1];
+    const mode = this.determineMode([row, col]);
 
+    let foundStandingPoint = false;
+    let startingPoint = [row, col]; // default starting point in case it's the first one hit
+
+    if (mode === 'horizontal') {
+      // go as far left as possible
+      let i = 0;
+      while (foundStandingPoint !== true) {
+        i += 1;
+        if (
+          this.field[row] &&
+          this.field[row][col - i] &&
+          (typeof (this.field[row][col - i]) === 'object' || this.field[row][col - i] === 'hit')
+        ) {
+          startingPoint = [row, col - i];
+        }
+        else {
+          foundStandingPoint = true;
+        }
+      }
+      return startingPoint;
+    }
+
+    else if (mode === 'vertical') {
+      // go as far up as possible
+      let i = 0;
+      while (foundStandingPoint !== true) {
+        i += 1;
+        if (
+          this.field[row - i] &&
+          this.field[row - i][col] &&
+          // check if row+i, col === object and if row+i, col === hit
+          (typeof (this.field[row - i][col]) === 'object' || this.field[row - i][col] === 'hit')
+        ) {
+          startingPoint = [row - i, col];
+        }
+        else {
+          foundStandingPoint = true;
+        }
+      }
+      return startingPoint;
+    }
+
+    return 'No starting point determined';
   }
 
   hitSurroundingsFirst(row, col, mode) {
+    // assigns 'hit' to the surroundings of the first part of the ship
+
     if (mode === 'horizontal') {
       // left upper left: this.field[row - 1][col - 1]
       if (
         this.field[row - 1] && // check if row exists first, otherwise access's undefined
-        this.field[row - 1][col - 1]
+        (this.field[row - 1][col - 1] === '' || this.field[row - 1][col - 1] === 'miss')
       ) {
         this.field[row - 1][col - 1] = 'miss';
       }
@@ -72,7 +122,7 @@ class Gameboard {
       // left middle left: this.field[row][col - 1]
       if (
         this.field[row] &&
-        this.field[row][col - 1]
+        (this.field[row][col - 1] === '' || this.field[row][col - 1] === 'miss')
       ) {
         this.field[row][col - 1] = 'miss';
       }
@@ -80,12 +130,9 @@ class Gameboard {
       // left bottom left: this.field[row + 1][col - 1]
       if (
         this.field[row + 1] &&
-        this.field[row + 1][col - 1]
+        (this.field[row + 1][col - 1] === '' || this.field[row + 1][col - 1] === 'miss')
       ) {
         this.field[row + 1][col - 1] = 'miss';
-      }
-
-      else {
       }
     }
 
@@ -106,14 +153,15 @@ class Gameboard {
     const row = coordinates[0];
     const col = coordinates[1];
     // if a ship is sunk, it hits the surrounding areas
-    if (this.checkMode(coordinates) === 'horizontal') {
+    console.log(this.determineMode(coordinates));
+    if (this.determineMode(coordinates) === 'horizontal') {
       const mode = 'horizontal';
       // assign miss to left
       this.hitSurroundingsFirst(row, col, mode);
       // assign miss to middle
       // assign miss to right
     }
-    else if (this.checkMode(coordinates) === 'vertical') {
+    else if (this.determineMode(coordinates) === 'vertical') {
       const mode = 'vertical';
     }
   }
@@ -418,8 +466,8 @@ class Gameboard {
 
   receiveAttack(coordinates) {
     // allows for a ship to be attacked and reduce its hitpoints, also considers misses
-    const row = coordinates[0];
-    const col = coordinates[1];
+    const row = parseInt(coordinates[0], 10);
+    const col = parseInt(coordinates[1], 10);
     const field = this.field[row][col];
     // if the space is already hit, return "Can't hit an already hit spot"
     if (field === 'miss' || field === 'hit') {
@@ -435,7 +483,11 @@ class Gameboard {
       // send a hit attack to that ship
       ship.hit();
 
-      // HIT SURROUNDINGS!
+      // HIT SURROUNDINGS, if ship sank
+      if (ship.sunk === true) {
+        const startingLocation = this.determineStartingPoint([row, col]);
+        this.hitSurroundings(startingLocation);
+      }
 
       // change the coords to 'hit'
       this.field[row][col] = 'hit';
