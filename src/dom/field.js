@@ -16,10 +16,10 @@ class GUI {
   placeDefaultShips(player) {
     // places 5 ships at the default location
     player.gameboard.placeShip(new Ship(5), [1, 1]);
-    player.gameboard.placeShip(new Ship(4), [5, 3], 'vertical');
-    player.gameboard.placeShip(new Ship(3), [7, 7], 'vertical');
+    player.gameboard.placeShip(new Ship(4), [5, 4], 'vertical');
+    player.gameboard.placeShip(new Ship(3), [0, 9], 'vertical');
     player.gameboard.placeShip(new Ship(2), [3, 4]);
-    player.gameboard.placeShip(new Ship(2), [0, 8]);
+    player.gameboard.placeShip(new Ship(3), [9, 0]); // change back to 2
   }
 
   createField(player, field) {

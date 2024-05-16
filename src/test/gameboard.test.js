@@ -425,26 +425,28 @@ describe('Sinking a ship should remove all the squares around it', () => {
     const sub2 = new Ship(3);
 
     mockGameboard.placeShip(sub1, [0, 9], 'vertical');
-    mockGameboard.receiveAttack([0][9]);
-    mockGameboard.receiveAttack([1][9]);
-    mockGameboard.receiveAttack([2][9]);
+    mockGameboard.receiveAttack([0, 9]);
+    mockGameboard.receiveAttack([1, 9]);
+    mockGameboard.receiveAttack([2, 9]);
 
     // check left
-    for (let i = 0; i < sub1.length + 1; i++) {
-      expect(mockGameboard.field[0 + i][9]).toBe('miss');
-    }
+    expect(mockGameboard.field[0][8]).toBe('miss');
+    expect(mockGameboard.field[1][8]).toBe('miss');
+    expect(mockGameboard.field[2][8]).toBe('miss');
+    expect(mockGameboard.field[3][8]).toBe('miss');
     // check bottom
     expect(mockGameboard.field[3][9]).toBe('miss');
 
     mockGameboard.placeShip(sub2, [9, 0], 'horizontal');
-    mockGameboard.receiveAttack([9][0]);
-    mockGameboard.receiveAttack([9][1]);
-    mockGameboard.receiveAttack([9][2]);
+    mockGameboard.receiveAttack([9, 0]);
+    mockGameboard.receiveAttack([9, 1]);
+    mockGameboard.receiveAttack([9, 2]);
 
     // check top
-    for (let i = 0; i < sub2.length; i++) {
-      expect(mockGameboard.field[9][0 + i]).toBe('miss');
-    }
+    expect(mockGameboard.field[8][0]).toBe('miss');
+    expect(mockGameboard.field[8][1]).toBe('miss');
+    expect(mockGameboard.field[8][2]).toBe('miss');
+    expect(mockGameboard.field[8][3]).toBe('miss');
     // check right
     expect(mockGameboard.field[9][3]).toBe('miss');
   });

@@ -37,7 +37,7 @@ main {
   display: grid;
   grid-template-rows: 0.2fr 0.8fr;
   gap: 5%;
-  background-color:  #1e2428;
+  background-color: #1e2428;
 }
 
 /* turn board */
@@ -61,7 +61,7 @@ main {
   display: grid;
   grid-auto-flow: column;
   justify-content: space-around;
-  align-items: baseline;
+  align-items: start;
 }
 
 .field1, .field2 {

@@ -108,7 +108,7 @@ class Gameboard {
   }
 
   hitSurroundingsFirst(row, col, mode) {
-    // assigns 'hit' to the surroundings of the first part of the ship
+    // assigns 'miss' to the surroundings of the first part of the ship
 
     if (mode === 'horizontal') {
       // left upper left: this.field[row - 1][col - 1]
@@ -137,32 +137,148 @@ class Gameboard {
     }
 
     else if (mode === 'vertical') {
+      // upper left
+      if (
+        this.field[row - 1] &&
+        (this.field[row - 1][col - 1] === '' || (this.field[row - 1][col - 1]) === 'miss')
+      ) {
+        this.field[row - 1][col - 1] = 'miss';
+      }
 
+      // upper middle
+      if (
+        this.field[row - 1] &&
+        (this.field[row - 1][col] === '' || this.field[row - 1][col] === 'miss')
+      ) {
+        this.field[row - 1][col] = 'miss';
+      }
+
+      // upper right
+      if (
+        this.field[row - 1] &&
+        (this.field[row - 1][col + 1] === '' || this.field[row - 1][col + 1] === 'miss')
+      ) {
+        this.field[row - 1][col + 1] = 'miss';
+      }
     }
   }
 
-  hitSurroundingsMiddle(coordinates, mode) {
+  hitSurroundingsMiddle(row, col, mode, ship) {
+    // assigns 'miss' to the middle part of the ship, one after the first, one before the last
+    if (mode === 'horizontal') {
+      for (let i = 0; i < ship.length; i++) {
+        // upper
+        if (
+          this.field[row - 1] &&
+          (this.field[row - 1][col + i] === '' || this.field[row - 1][col + i] === 'miss')
+        ) {
+          this.field[row - 1][col + i] = 'miss';
+        }
+        // lower
+        if (
+          this.field[row + 1] &&
+          (this.field[row + 1][col + i] === '' || this.field[row + 1][col + i] === 'miss')
+        ) {
+          this.field[row + 1][col + i] = 'miss';
+        }
+      }
+    }
 
+    else if (mode === 'vertical') {
+      for (let i = 0; i < ship.length; i++) {
+        // left
+        if (
+          this.field[row + i] &&
+          (this.field[row + i][col - 1] === '' || this.field[row + i][col - 1] === 'miss')
+        ) {
+          this.field[row + i][col - 1] = 'miss';
+        }
+        // right
+        if (
+          this.field[row + i] &&
+          (this.field[row + i][col + 1] === '' || this.field[row + i][col + 1] === 'miss')
+        ) {
+          this.field[row + i][col + 1] = 'miss';
+        }
+      }
+    }
   }
 
-  hitSurroundingsLast(coordinates, mode) {
+  hitSurroundingsLast(startingPoint, mode, ship) {
+    // assigns 'miss' to the surroundings of the last part of the ship
+    if (mode === 'horizontal') {
+      const endPoint = ship.length - 1;
+      const row = startingPoint[0];
+      const col = startingPoint[1] + endPoint;
 
+      // right upper right
+      if (
+        this.field[row - 1] &&
+        (this.field[row - 1][col + 1] === '' || this.field[row - 1][col + 1] === 'miss')
+      ) {
+        this.field[row - 1][col + 1] = 'miss';
+      }
+      // right middle right
+      if (
+        this.field[row] &&
+        (this.field[row][col + 1] === '' || this.field[row][col + 1] === 'miss')
+      ) {
+        this.field[row][col + 1] = 'miss';
+      }
+      // right bottom right
+      if (
+        this.field[row + 1] &&
+        (this.field[row + 1][col + 1] === '' || this.field[row + 1][col + 1] === 'miss')
+      ) {
+        this.field[row + 1][col + 1] = 'miss';
+      }
+    }
+
+    else if (mode === 'vertical') {
+      const endPoint = ship.length - 1;
+      const row = startingPoint[0] + endPoint;
+      const col = startingPoint[1];
+
+      // bottom left
+      if (
+        this.field[row + 1] &&
+        (this.field[row + 1][col - 1] === '' || this.field[row + 1][col - 1] === 'miss')
+      ) {
+        this.field[row + 1][col - 1] = 'miss';
+      }
+      // bottom middle
+      if (
+        this.field[row + 1] &&
+        (this.field[row + 1][col] === '' || this.field[row + 1][col] === 'miss')
+      ) {
+        this.field[row + 1][col] = 'miss';
+      }
+      // bottom right
+      if (
+        this.field[row + 1] &&
+        (this.field[row + 1][col + 1] === '' || this.field[row + 1][col + 1] === 'miss')
+      ) {
+        this.field[row + 1][col + 1] = 'miss';
+      }
+    }
   }
 
-  hitSurroundings(coordinates) {
+  hitSurroundings(coordinates, ship) {
+    // if a ship is sunk, it hits the surrounding areas
     const row = coordinates[0];
     const col = coordinates[1];
-    // if a ship is sunk, it hits the surrounding areas
-    console.log(this.determineMode(coordinates));
-    if (this.determineMode(coordinates) === 'horizontal') {
-      const mode = 'horizontal';
-      // assign miss to left
+    const mode = this.determineMode(coordinates);
+
+    // could actually skip if statements!!!
+    if (mode === 'horizontal') {
       this.hitSurroundingsFirst(row, col, mode);
-      // assign miss to middle
-      // assign miss to right
+      this.hitSurroundingsMiddle(row, col, mode, ship);
+      this.hitSurroundingsLast(coordinates, mode, ship);
     }
-    else if (this.determineMode(coordinates) === 'vertical') {
-      const mode = 'vertical';
+    else if (mode === 'vertical') {
+      this.hitSurroundingsFirst(row, col, mode);
+      this.hitSurroundingsMiddle(row, col, mode, ship);
+      this.hitSurroundingsLast(coordinates, mode, ship);
     }
   }
 
@@ -486,7 +602,7 @@ class Gameboard {
       // HIT SURROUNDINGS, if ship sank
       if (ship.sunk === true) {
         const startingLocation = this.determineStartingPoint([row, col]);
-        this.hitSurroundings(startingLocation);
+        this.hitSurroundings(startingLocation, ship);
       }
 
       // change the coords to 'hit'
