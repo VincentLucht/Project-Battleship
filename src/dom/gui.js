@@ -15,7 +15,7 @@ class GUI {
 
   placeDefaultShips(player) {
     // places 5 ships at the default location
-    player.gameboard.placeShip(new Ship(5), [1, 1]);
+    player.gameboard.placeShip(new Ship(5), [0, 0]);
     player.gameboard.placeShip(new Ship(4), [5, 4], 'vertical');
     player.gameboard.placeShip(new Ship(3), [0, 9], 'vertical');
     player.gameboard.placeShip(new Ship(2), [3, 4]);
@@ -26,11 +26,129 @@ class GUI {
 
   }
 
-  missField(clickedElement) {
-    // eslint-disable-next-line no-param-reassign
-    clickedElement.textContent = '✕';
-    // eslint-disable-next-line no-param-reassign
-    clickedElement.style.fontSize = '1vw';
+  refreshSurroundingsFirst(row, col, parentDiv, gameboard, mode) {
+    const revealFieldFirst = (rowOffset, colOffset) => {
+      if (gameboard.field[rowOffset] && gameboard.field[rowOffset][colOffset] !== undefined) {
+        const gameboardContent = gameboard.field[rowOffset][colOffset];
+        const selectorCoords = `[coords="${rowOffset},${colOffset}"]`;
+        const selectedDiv = parentDiv.querySelectorAll(selectorCoords);
+
+        if (gameboardContent === '') {
+          selectedDiv[0].textContent = '✕';
+          selectedDiv[0].classList.add('hit-effect');
+          setTimeout(() => {
+            selectedDiv[0].classList.remove('hit-effect');
+          }, 200);
+        }
+      }
+    };
+
+    if (mode === 'horizontal') {
+      // left upper left
+      revealFieldFirst(row - 1, col - 1);
+      // left middle left
+      revealFieldFirst(row, col - 1);
+      // left bottom left
+      revealFieldFirst(row + 1, col - 1);
+    }
+
+    else if (mode === 'vertical') {
+      // upper left
+      revealFieldFirst(row - 1, col - 1);
+      // upper middle
+      revealFieldFirst(row - 1, col);
+      // upper right
+      revealFieldFirst(row - 1, col + 1);
+    }
+  }
+
+  refreshSurroundingsMiddle(row, col, parentDiv, gameboard, ship, mode) {
+    const revealFieldMiddle = (rowOffset, colOffset) => {
+      if (gameboard.field[rowOffset] && gameboard.field[rowOffset][colOffset] !== undefined) {
+        const gameBoardContent = gameboard.field[rowOffset][colOffset];
+        const selectorCoords = `[coords="${rowOffset},${colOffset}"]`;
+        const selectedDiv = parentDiv.querySelectorAll(selectorCoords);
+
+        if (gameBoardContent === '') {
+          selectedDiv[0].textContent = '✕';
+          selectedDiv[0].classList.add('hit-effect');
+          setTimeout(() => {
+            selectedDiv[0].classList.remove('hit-effect');
+          }, 200);
+        }
+      }
+    };
+
+    if (mode === 'horizontal') {
+      for (let i = 0; i < ship.length; i++) {
+        // upper
+        revealFieldMiddle(row - 1, col + i);
+        // lower
+        revealFieldMiddle(row + 1, col + i);
+      }
+    }
+
+    else if (mode === 'vertical') {
+      for (let i = 0; i < ship.length; i++) {
+        // left
+        revealFieldMiddle(row + i, col - 1);
+        // right
+        revealFieldMiddle(row + i, col + 1);
+      }
+    }
+  }
+
+  refreshSurroundingsLast(coordinates, parentDiv, gameboard, ship, mode) {
+    const revealFieldLast = (rowOffset, colOffset) => {
+      if (gameboard.field[rowOffset] && gameboard.field[rowOffset][colOffset] !== undefined) {
+        const gameboardContent = gameboard.field[rowOffset][colOffset];
+        const selectorCoords = `[coords="${rowOffset},${colOffset}"]`;
+        const selectedDiv = parentDiv.querySelectorAll(selectorCoords);
+
+        if (gameboardContent === '') {
+          selectedDiv[0].textContent = '✕';
+          selectedDiv[0].classList.add('hit-effect');
+          setTimeout(() => {
+            selectedDiv[0].classList.remove('hit-effect');
+          }, 200);
+        }
+      }
+    };
+
+    if (mode === 'horizontal') {
+      const endPoint = ship.length - 1;
+      const row = coordinates[0];
+      const col = coordinates[1] + endPoint;
+
+      // right upper right
+      revealFieldLast(row - 1, col + 1);
+      // right middle right
+      revealFieldLast(row, col + 1);
+      // right bottom right
+      revealFieldLast(row + 1, col + 1);
+    }
+
+    else if (mode === 'vertical') {
+      const endPoint = ship.length - 1;
+      const row = coordinates[0] + endPoint;
+      const col = coordinates[1];
+
+      // bottom left
+      revealFieldLast(row + 1, col - 1);
+      // bottom middle
+      revealFieldLast(row + 1, col);
+      // bottom right
+      revealFieldLast(row + 1, col + 1);
+    }
+  }
+
+  refreshSurroundings(coordinates, parentDiv, gameboard, ship, mode) {
+    const row = coordinates[0];
+    const col = coordinates[1];
+
+    this.refreshSurroundingsFirst(row, col, parentDiv, gameboard, mode);
+    this.refreshSurroundingsMiddle(row, col, parentDiv, gameboard, ship, mode);
+    this.refreshSurroundingsLast([row, col], parentDiv, gameboard, ship, mode);
   }
 
   createField(player, field, mode) {
@@ -108,8 +226,10 @@ class GUI {
         const coords = coordsRaw.split(',');
         const row = parseInt(coords[0], 10);
         const col = parseInt(coords[1], 10);
-        // console.log(this.player1.gameboard.checkMode([row, col])); // run before receiveAttack
-        // console.log(this.player1.gameboard.determineStartingPoint([row, col]));
+
+        // get mode and starting point
+        const mode = this.player1.gameboard.determineMode([row, col]);
+        const startingPoint = this.player1.gameboard.determineStartingPoint([row, col]);
 
         let shipSunk = false;
 
@@ -118,6 +238,9 @@ class GUI {
         if (typeof (fieldContent) === 'object') {
           if (fieldContent.timesHit === fieldContent.length - 1) {
             this.displayBoardMessage('Ship sunk!');
+            // refresh surroundings
+            // eslint-disable-next-line max-len
+            this.refreshSurroundings(startingPoint, this.field1, this.player1.gameboard, fieldContent, mode);
             shipSunk = true;
           }
         }
@@ -128,7 +251,6 @@ class GUI {
         } else if (shipSunk !== true) { // don't change board, if ship is sunk
           if (fieldContent === '') {
             this.displayBoardMessage('Miss!');
-            this.missField(clickedElement);
 
             this.changeOpacity();
 
@@ -139,22 +261,12 @@ class GUI {
             // enable player2 EL and set to true
             this.field2.addEventListener('click', this.clickHandler);
             this.player2Turn = true;
-
-            // refresh screen
-            // this.removeField(this.field1);
-            // this.createField(this.player1, this.field1);
           }
           else if (typeof (fieldContent) === 'object') {
             this.displayBoardMessage('Hit!');
-            // refresh screen
-            // this.removeField(this.field1);
-            // this.createField(this.player1, this.field1);
+            // refresh surroundings?
           }
         }
-
-        // refresh screen regardless
-        // this.removeField(this.field1);
-        // this.createField(this.player1, this.field1);
       }
     }
 

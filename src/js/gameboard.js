@@ -15,6 +15,10 @@ class Gameboard {
   }
 
   determineMode(startingPoint) {
+
+    // USE RECURSION HERE??? 
+    // Dont forget it!!!!
+
     // checks the mode of the ship that is in the coordinates
     const row = startingPoint[0];
     const col = startingPoint[1];

@@ -150,3 +150,10 @@ a:visited {
 .color-change-green {
   animation: color-change-green 1.5s infinite;
 }
+
+.hit-effect {
+  transition: transform 0.2s ease-in-out, 
+              background-color 0.2s ease-in-out; /* Use ease-in-out for smooth transitions */
+  transform: scale(1.3); /* Increase size */
+  background-color: red !important; /* Change color to red */
+}
