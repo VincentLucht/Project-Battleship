@@ -22,9 +22,18 @@ class GUI {
     player.gameboard.placeShip(new Ship(3), [9, 0]); // change back to 2
   }
 
-  hitField() {
-
+  /* eslint-disable no-param-reassign */
+  hitField(clickedElement) {
+    clickedElement.textContent = '✕';
+    clickedElement.style.backgroundColor = 'red';
+    clickedElement.style.fontSize = '2rem';
   }
+
+  missField(clickedElement) {
+    clickedElement.textContent = '✕';
+    clickedElement.style.fontSize = '1rem';
+  }
+  // eslint-enable no-param-reassign
 
   refreshSurroundingsFirst(row, col, parentDiv, gameboard, mode) {
     const revealFieldFirst = (rowOffset, colOffset) => {
@@ -238,9 +247,9 @@ class GUI {
         if (typeof (fieldContent) === 'object') {
           if (fieldContent.timesHit === fieldContent.length - 1) {
             this.displayBoardMessage('Ship sunk!');
-            // refresh surroundings
             // eslint-disable-next-line max-len
             this.refreshSurroundings(startingPoint, this.field1, this.player1.gameboard, fieldContent, mode);
+            this.hitField(clickedElement);
             shipSunk = true;
           }
         }
@@ -251,6 +260,7 @@ class GUI {
         } else if (shipSunk !== true) { // don't change board, if ship is sunk
           if (fieldContent === '') {
             this.displayBoardMessage('Miss!');
+            this.missField(clickedElement);
 
             this.changeOpacity();
 
@@ -264,7 +274,7 @@ class GUI {
           }
           else if (typeof (fieldContent) === 'object') {
             this.displayBoardMessage('Hit!');
-            // refresh surroundings?
+            this.hitField(clickedElement);
           }
         }
       }
