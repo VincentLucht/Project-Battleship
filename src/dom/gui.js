@@ -9,6 +9,7 @@ class GUI {
     this.turnBoard = turnBoard;
     this.player1Turn = true;
     this.player2Turn = false;
+    this.gameOver = false;
     // using 'this' does not work without binding here, it will return undefined otherwise
     this.clickHandler = this.clickHandler.bind(this);
   }
@@ -19,7 +20,7 @@ class GUI {
     player.gameboard.placeShip(new Ship(4), [5, 4], 'vertical');
     player.gameboard.placeShip(new Ship(3), [0, 9], 'vertical');
     player.gameboard.placeShip(new Ship(2), [3, 4]);
-    player.gameboard.placeShip(new Ship(3), [9, 0]); // change back to 2
+    player.gameboard.placeShip(new Ship(2), [9, 0]);
   }
 
   /* eslint-disable no-param-reassign */
@@ -218,8 +219,6 @@ class GUI {
     this.changeOpacity();
 
     if (this.player1Turn === true) {
-      this.player1Turn = false;
-      this.player2Turn = true;
       this.field2.addEventListener('click', this.clickHandler); // add an event listener to each square of the parent div
     }
   }
@@ -228,7 +227,7 @@ class GUI {
     const clickedElement = event.target;
 
     // if it is player1's turn, then add an event listener, remove player2's event listener
-    if (this.player1Turn === true) {
+    if (this.player1Turn) {
       if (clickedElement.classList.contains('unselectable')) {
         // put coords here, can otherwise click on background div accidentally, resulting in null
         const coordsRaw = clickedElement.getAttribute('coords');
@@ -237,27 +236,28 @@ class GUI {
         const col = parseInt(coords[1], 10);
 
         // get mode and starting point
-        const mode = this.player1.gameboard.determineMode([row, col]);
-        const startingPoint = this.player1.gameboard.determineStartingPoint([row, col]);
+        const mode = this.player2.gameboard.determineMode([row, col]);
+        const startingPoint = this.player2.gameboard.determineStartingPoint([row, col]);
 
         let shipSunk = false;
 
         // check if the ship sank
-        const fieldContent = this.player1.gameboard.field[row][col];
+        const fieldContent = this.player2.gameboard.field[row][col];
         if (typeof (fieldContent) === 'object') {
           if (fieldContent.timesHit === fieldContent.length - 1) {
             this.displayBoardMessage('Ship sunk!');
             // eslint-disable-next-line max-len
-            this.refreshSurroundings(startingPoint, this.field1, this.player1.gameboard, fieldContent, mode);
+            this.refreshSurroundings(startingPoint, this.field2, this.player2.gameboard, fieldContent, mode);
             this.hitField(clickedElement);
             shipSunk = true;
           }
         }
 
         // check if placement is allowed first, DISALLOW IF INVALID!
-        if (this.player1.gameboard.receiveAttack(coords) !== 'Success') {
-          this.displayBoardMessage(this.player1.gameboard.receiveAttack(coords));
-        } else if (shipSunk !== true) { // don't change board, if ship is sunk
+        if (this.player2.gameboard.receiveAttack(coords) !== 'Success') {
+          this.displayBoardMessage(this.player2.gameboard.receiveAttack(coords));
+        }
+        else if (shipSunk !== true) { // don't change board, if ship is sunk
           if (fieldContent === '') {
             this.displayBoardMessage('Miss!');
             this.missField(clickedElement);
@@ -265,12 +265,14 @@ class GUI {
             this.changeOpacity();
 
             // disable player1 EL and set to false
-            this.field1.removeEventListener('click', this.clickHandler);
+            this.field2.removeEventListener('click', this.clickHandler);
             this.player1Turn = false;
 
-            // enable player2 EL and set to true
-            this.field2.addEventListener('click', this.clickHandler);
+            // enable player2's turn
             this.player2Turn = true;
+
+            // player 2's turn
+            this.aiTurn();
           }
           else if (typeof (fieldContent) === 'object') {
             this.displayBoardMessage('Hit!');
@@ -279,55 +281,46 @@ class GUI {
         }
       }
     }
+  }
 
-    // if it is player2's turn, then add an event listener, remove player1's event listener
-    else if (this.player2Turn === true) {
-      if (clickedElement.classList.contains('unselectable')) {
-        const coordsRaw = clickedElement.getAttribute('coords');
-        const coords = coordsRaw.split(',');
-        const row = parseInt(coords[0], 10);
-        const col = parseInt(coords[1], 10);
+  aiTurn() {
+    // change opacity, signaling AI's turn
+    this.changeOpacity();
+    // change the board message so that it displays AI's turn
 
-        const fieldContent = this.player2.gameboard.field[row][col];
+    // get the attack coordinates
+    const coords = this.player2.getAttackCoordinates();
+    const row = coords[0];
+    const col = coords[1];
 
-        let shipSunk = false;
+    setTimeout(() => {
+      // sync with the gameboard coordinates
+      const selectorCoords = `[coords="${row},${col}"]`;
+      const selectedDivNodeList = this.field1.querySelectorAll(selectorCoords);
+      const selectedDiv = selectedDivNodeList[0];
 
-        // check if the ship sank
-        if (typeof (fieldContent) === 'object') {
-          if (fieldContent.timesHit === fieldContent.length - 1) {
-            this.displayBoardMessage('Ship sunk!');
-            shipSunk = true;
-          }
-        }
+      const fieldContent = this.player1.gameboard.field[row][col];
 
-        if (this.player2.gameboard.receiveAttack(coords) !== 'Success') {
-          this.displayBoardMessage(this.player2.gameboard.receiveAttack(coords));
-        } else {
-          if (shipSunk !== true) {
-            if (fieldContent === '') {
-              this.displayBoardMessage('Miss!');
-            }
-            else {
-              this.displayBoardMessage('Hit!');
-            }
-          }
+      if (fieldContent === '') {
+        this.missField(selectedDiv);
+        // attack the board
+        this.player1.gameboard.receiveAttack(coords);
 
-          this.changeOpacity();
-
-          // disable player2 EL and set to false
-          this.field2.removeEventListener('click', this.clickHandler);
-          this.player2Turn = false;
-
-          // enable player1 EL and set to true
-          this.field1.addEventListener('click', this.clickHandler);
-          this.player1Turn = true;
-
-          // refresh screen
-          // this.removeField(this.field2);
-          // this.createField(this.player2, this.field2);
-        }
+        // disable player2 turn
+        this.player2Turn = false;
+        // add event listener to field2
+        this.player1Turn = true;
+        this.field2.addEventListener('click', this.clickHandler);
+        // change opacity again
+        this.changeOpacity();
       }
-    }
+      else if (typeof (fieldContent) === 'object') {
+        // this.player2.rememberHit();
+        this.hitField(selectedDiv);
+        // attack again
+        this.aiTurn();
+      }
+    }, 1000);
   }
 
   removeBoardMessage() {

@@ -4,3 +4,6 @@
 - [x] add hit effect when this.receiveAttack() runs, so that it looks nicer
 - [ ] add AI for the enemy
 - [ ] add game over
+- [ ] use recursion for determine mode?
+- [ ] use ES module instead of module.exports
+- [ ] refactor obvious conditions, like if (player1Turn === true) => if (player1Turn)

@@ -84,6 +84,8 @@ main {
   align-items: center;
   cursor: crosshair;
   background-color: #2489DA;
+  min-width: 36px;
+  min-height: 36px;
 } 
 
 .field1>div:hover, .field2>div:hover {

@@ -1,7 +1,13 @@
 class AI {
   constructor(gameboard) {
     this.gameboard = gameboard;
-    this.hitShipCoords = undefined;
+    this.firstHitCoordinates = undefined;
+    this.attackedShip = undefined;
+    this.nextHitCoordinates = undefined;
+    this.attackDirection = undefined;
+
+    this.attackChoices = [1, 2, 3, 4];
+
     this.availableMoves = [
       [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9]],
       [[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9]],
@@ -16,14 +22,106 @@ class AI {
     ];
   }
 
-  checkHit() {
-    // if a ship is hit, remember where it hit the boat
-    // attack either the top, bottom, right, or left
-    // if it doesn't hit, return to the previous hit (this.hitShipCoords)
+  removeSurroundingMoves() {
+    // removes the surrounding hits from this.availableMoves, if a ship sank
+  }
 
-    // if it hits, continue that direction, until the ship sinks
-    // if it misses, and the ship is not sank, return to the previous hit,
-    // and hit the opposite direction, until ship sinks
+  getRandomDirection() {
+    if (this.attackChoices.length === 0) {
+      return 'No attack possible';
+    }
+
+    const randomIndex = Math.floor(Math.random() * this.attackChoices.length);
+    return this.attackChoices[randomIndex];
+  }
+
+  shipSank() {
+    if (this.attackedShip.sunk) {
+      return 'Sunk';
+    }
+    return 'Ship not sunk';
+  }
+
+  getNextAttackCoordinates(coordinates, attackNumber) {
+    const row = coordinates[0];
+    const col = coordinates[1];
+
+    const randomAttackDirection = attackNumber;
+
+    // attack upper
+    if (randomAttackDirection === 1) {
+      // save the ship to memory
+      if (this.gameboard.field[row - 1]) {
+        const fieldContent = this.gameboard.field[row - 1][col];
+
+        // hits ship
+        if (typeof (fieldContent) === 'object') {
+          this.attackDirection = 'vertical';
+          this.gameboard.receiveAttack([row - 1, col]);
+          return this.getNextAttackCoordinates([row - 1, col], 1);
+        }
+
+        // does not hit ship
+        else {
+          // check if ship sank
+          if (this.attackedShip.sunk === true) {
+            console.log('Ship successfully sunk');
+          }
+          // determine the next attackDirection
+          if (this.attackedShip.sunk === false) {
+            if (this.gameboard.field[this.firstHitCoordinates[0] + 1]) {
+              return [this.firstHitCoordinates[0] + 1, this.firstHitCoordinates[1]];
+            }
+          }
+        }
+      }
+    }
+
+    // attack lower
+    if (randomAttackDirection === 2) {
+      if (this.gameboard.field[row + 1]) {
+        const fieldContent = this.gameboard.field[row + 1][col];
+        // hits ship
+        if (typeof (fieldContent) === 'object') {
+          this.attackDirection = 'vertical';
+        }
+        // does not hit ship
+        else {
+          const index = this.attackChoices.indexOf(randomAttackDirection);
+          if (index !== -1) {
+            this.attackChoices.splice(index, 1);
+          }
+        }
+        return [row + 1, col];
+      }
+      else {
+        return 'Lower field does not exist';
+      }
+    }
+
+    // attack right
+    // if right hit, attackDirection = horizontal
+
+    // attack left
+    // if left hit, attackDirection = horizontal
+
+    // if it doesn't hit, return to the previous hit (this.firstHitCoords)
+
+    return 'Invalid attack direction';
+  }
+
+  rememberFirstHitCoordinates(coordinates) {
+    // if a ship is hit, remember where it hit the boat
+    if (!this.firstHitCoordinates) {
+      this.firstHitCoordinates = coordinates;
+    }
+  }
+
+  rememberShip(coordinates) {
+    if (!this.attackedShip) {
+      const ship = this.gameboard.field[coordinates[0]][coordinates[1]];
+      this.attackedShip = ship;
+    }
   }
 
   randomMove() {
@@ -65,17 +163,15 @@ class AI {
     return true;
   }
 
-  attack() {
+  getAttackCoordinates() {
     const move = this.randomMove();
 
     if (this.isMoveValid(move) === true) {
-      this.gameboard.receiveAttack(move);
+      return move;
     }
     else {
       return 'No more possible moves';
     }
-
-    return 'Success';
   }
 }
 
