@@ -21,24 +21,70 @@ gui.placeDefaultShips(player2);
 gui.displayField();
 
 // AI testing
+let player2Turn = true;
 const mockGameboard = new Gameboard();
-const mockShip = new Ship(4);
 const mockAI = new AI(mockGameboard);
 
-mockGameboard.placeShip(mockShip, [2, 2], 'vertical');
+mockGameboard.placeShip(new Ship(5), [2, 2]);
+mockGameboard.placeShip(new Ship(4), [5, 5]);
+mockGameboard.placeShip(new Ship(3), [7, 3], 'vertical');
+mockGameboard.placeShip(new Ship(2), [0, 8]);
+mockGameboard.placeShip(new Ship(2), [9, 0]);
 
-// remember the base location of the hit
-mockAI.rememberFirstHitCoordinates([4, 2]);
-// remember the ship
-mockAI.rememberShip([4, 2]);
-// attack that spot
-mockGameboard.receiveAttack([4, 2]);
+function simulateAiTurn() {
+  if (player2Turn) {
+    // get random attack coordinates
+    const attackCoordinates = mockAI.getRandomCoordinates(); // random attack
+    const rowAC = attackCoordinates[0];
+    const colAC = attackCoordinates[1];
 
-// it's still the AI's turn, it "randomly" attacks up
-const nextAttackCoordinates = mockAI.getNextAttackCoordinates(mockAI.firstHitCoordinates, 1);
+    // did it hit a ship?
 
-mockGameboard.receiveAttack(nextAttackCoordinates);
-mockAI.shipSank();
+    // yes
+    if (typeof (mockAI.gameboard.field[rowAC][colAC]) === 'object') {
+      // attack the ship
+      mockAI.gameboard.receiveAttack(attackCoordinates);
 
-console.log(mockAI.firstHitCoordinates);
-console.log(mockGameboard.field);
+      // remember coords
+      mockAI.rememberHit(attackCoordinates);
+
+      // get a random attack direction
+      const randomDirection = mockAI.getRandomDirection();
+      const newRow = rowAC + randomDirection.coordinates[0];
+      const newCol = colAC + randomDirection.coordinates[1];
+
+      // remove the random attack direction so that it won't attack there again
+      mockAI.deleteDirection(randomDirection.direction);
+
+      // attack the adjacent spot
+      // did it hit?
+
+      // yes
+      if (typeof (mockAI.gameboard.field[newRow][newCol]) === 'object') {
+        // attack the ship
+        mockAI.gameboard.receiveAttack([newRow, newCol]);
+        // remove from available moves
+      }
+      // no
+      else if (mockAI.gameboard.field[newRow][newCol] === 'miss' || mockAI.gameboard.field[newRow][newCol] === '') {
+        mockAI.gameboard.receiveAttack([newRow, newCol]);
+        // end player 2 turn
+        player2Turn = false;
+      }
+    }
+
+    // no
+    else if (mockAI.gameboard.field[rowAC][colAC] === '' || mockAI.gameboard.field[rowAC][colAC] === 'miss') {
+      console.log('Ship missed');
+      mockAI.gameboard.receiveAttack([rowAC, colAC]);
+      // end player 2 turn
+      player2Turn = false;
+    }
+
+    console.log(mockAI.gameboard.field);
+
+    simulateAiTurn();
+  }
+}
+
+simulateAiTurn();

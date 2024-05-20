@@ -6,7 +6,12 @@ class AI {
     this.nextHitCoordinates = undefined;
     this.attackDirection = undefined;
 
-    this.attackChoices = [1, 2, 3, 4];
+    this.directions = {
+      up: [-1, 0],
+      down: [1, 0],
+      left: [0, -1],
+      right: [0, 1],
+    };
 
     this.availableMoves = [
       [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9]],
@@ -22,169 +27,100 @@ class AI {
     ];
   }
 
-  refreshMemory() {
+  rememberHit(coordinates) {
+    this.firstHitCoordinates = coordinates;
+  }
+
+  clearHitData() {
     this.firstHitCoordinates = undefined;
-    this.attackedShip = undefined;
     this.nextHitCoordinates = undefined;
     this.attackDirection = undefined;
-    this.attackChoices = [1, 2, 3, 4];
-  }
-
-  removeSurroundingMoves() {
-    // Implement the logic to remove surrounding moves if a ship sank
-  }
-
-  getRandomDirection() {
-    if (this.attackChoices.length === 0) {
-      return 'No attack possible';
-    }
-
-    const randomIndex = Math.floor(Math.random() * this.attackChoices.length);
-    return this.attackChoices[randomIndex];
-  }
-
-  shipSank() {
-    if (this.attackedShip && this.attackedShip.sunk) {
-      return 'Sunk';
-    }
-    return 'Ship not sunk';
-  }
-
-  getNextAttackCoordinates(coordinates, attackNumber, depth = 0) {
-    if (depth > 10) { // depth limit to prevent infinite recursion
-      return 'Invalid attack direction';
-    }
-
-    const row = coordinates[0];
-    const col = coordinates[1];
-
-    const randomAttackDirection = attackNumber;
-
-    // Helper function to remove an attack direction from attackChoices
-    const removeAttackChoice = (direction) => {
-      const index = this.attackChoices.indexOf(direction);
-      if (index > -1) {
-        this.attackChoices.splice(index, 1);
-      }
+    this.directions = {
+      up: [-1, 0],
+      down: [1, 0],
+      left: [0, -1],
+      right: [0, 1],
     };
-
-    const performAttack = (newRow, newCol, direction) => {
-      if (this.gameboard.field[newRow] && this.gameboard.field[newRow][newCol] !== undefined) {
-        const fieldContent = this.gameboard.field[newRow][newCol];
-
-        // hits ship
-        if (typeof fieldContent === 'object') {
-          this.attackDirection = direction;
-          this.gameboard.receiveAttack([newRow, newCol]);
-          return this.getNextAttackCoordinates([newRow, newCol], attackNumber, depth + 1);
-        }
-        else {
-          removeAttackChoice(attackNumber);
-          if (this.shipSank() === 'Sunk') {
-            console.log('Ship successfully sunk');
-          } else {
-            this.setNextHitCoordinates(direction);
-          }
-        }
-      }
-    };
-
-    // attack upper
-    if (randomAttackDirection === 1) {
-      return performAttack(row - 1, col, 'vertical');
-    }
-
-    // attack lower
-    if (randomAttackDirection === 2) {
-      return performAttack(row + 1, col, 'vertical');
-    }
-
-    // attack right
-    if (randomAttackDirection === 3) {
-      return performAttack(row, col + 1, 'horizontal');
-    }
-
-    // attack left
-    if (randomAttackDirection === 4) {
-      return performAttack(row, col - 1, 'horizontal');
-    }
-
-    return 'Invalid attack direction';
   }
 
-  setNextHitCoordinates(direction) {
-    const [row, col] = this.firstHitCoordinates;
-    if (direction === 'vertical') {
-      if (this.attackChoices.includes(1) && this.gameboard.field[row + 1]) {
-        this.nextHitCoordinates = [row + 1, col];
-      }
-      else if (this.attackChoices.includes(2) && this.gameboard.field[row - 1]) {
-        this.nextHitCoordinates = [row - 1, col];
-      }
-    }
+  removeAvailableMoveSurroundings() {
 
-    else if (direction === 'horizontal') {
-      if (
-        this.attackChoices.includes(3) &&
-        this.gameboard.field[row] &&
-        this.gameboard.field[row][col + 1] !== undefined
-      ) {
-        this.nextHitCoordinates = [row, col + 1];
-      }
-      else if (
-        this.attackChoices.includes(4) &&
-        this.gameboard.field[row] &&
-        this.gameboard.field[row][col - 1] !== undefined
-      ) {
-        this.nextHitCoordinates = [row, col - 1];
+  }
+
+  removeFromAvailableMoves(valueToRemove) {
+    for (let i = 0; i < this.availableMoves.length; i++) {
+      const index = this.availableMoves[i].indexOf(valueToRemove);
+      if (index !== -1) {
+        this.availableMoves[i].splice(index, 1);
+        // Assuming each value appears only once, so we can break after removal.
+        break;
       }
     }
   }
 
-  rememberFirstHitCoordinates(coordinates) {
-    if (!this.firstHitCoordinates) {
-      this.firstHitCoordinates = coordinates;
+  getRandomCoordinates() {
+    // it's a bit inefficient, but arr is only size 100
+    const randomRowIndex = Math.floor(Math.random() * this.availableMoves.length);
+    let randomRowArray = this.availableMoves[randomRowIndex];
+
+    // Check if the selected subarray is empty!
+    let i = 9;
+    while (randomRowArray.length === 0) {
+      const newRandomArray = this.availableMoves[i];
+      if (newRandomArray === undefined) {
+        return 'No more possible move';
+      }
+      if (newRandomArray.length !== 0) {
+        randomRowArray = newRandomArray;
+        break;
+      }
+      else if (newRandomArray.length === undefined) {
+        return 'No more possible moves';
+      }
+      i -= 1;
     }
-  }
 
-  rememberShip(coordinates) {
-    if (!this.attackedShip) {
-      const ship = this.gameboard.field[coordinates[0]][coordinates[1]];
-      this.attackedShip = ship;
-    }
-  }
-
-  randomMove() {
-    let availableCells = [];
-    for (const row of this.availableMoves) {
-      availableCells = availableCells.concat(row);
-    }
-
-    if (availableCells.length === 0) {
-      return 'No more possible moves';
-    }
-
-    const randomIndex = Math.floor(Math.random() * availableCells.length);
-    const move = availableCells[randomIndex];
-
-    const row = move[0];
-    const colIndex = this.availableMoves[row].indexOf(move);
-    this.availableMoves[row].splice(colIndex, 1);
+    const randomColIndex = Math.floor(Math.random() * randomRowArray.length);
+    const move = randomRowArray[randomColIndex];
 
     return move;
   }
 
-  isMoveValid(move) {
-    return move !== 'No more possible moves';
+  getNextCoordinates() {
+    if (!this.nextHitCoordinates || !this.attackDirection) {
+      return null;
+    }
+
+    const directionOffset = this.directions[this.attackDirection];
+    const newRow = this.nextHitCoordinates[0] + directionOffset[0];
+    const newCol = this.nextHitCoordinates[1] + directionOffset[1];
+    return [newRow, newCol];
   }
 
-  getAttackCoordinates() {
-    const move = this.randomMove();
+  deleteDirection(key) {
+    delete this.directions[key];
+  }
 
-    if (this.isMoveValid(move)) {
-      return move;
-    }
-    return 'No more possible moves';
+  getRandomDirection() {
+    const keys = Object.keys(this.directions);
+    const randomKey = keys[Math.floor(Math.random() * keys.length)];
+    const randomValue = this.directions[randomKey];
+
+    return { direction: randomKey, coordinates: randomValue };
+  }
+
+  switchToOppositeDirection() {
+    this.attackDirection = this.getOppositeDirection(this.attackDirection);
+  }
+
+  getOppositeDirection(direction) {
+    const opposites = {
+      up: 'down',
+      down: 'up',
+      left: 'right',
+      right: 'left',
+    };
+    return opposites[direction];
   }
 }
 

@@ -283,45 +283,76 @@ class GUI {
     }
   }
 
-  aiTurn() {
-    // change opacity, signaling AI's turn
-    this.changeOpacity();
-    // change the board message so that it displays AI's turn
+  // aiTurn() {
+  //   // change opacity, signaling AI's turn
+  //   this.changeOpacity();
+  //   // change the board message so that it displays AI's turn
 
-    // get the attack coordinates
-    const coords = this.player2.getAttackCoordinates();
-    const row = coords[0];
-    const col = coords[1];
+  //   // does the AI have memory?
+  //   if (this.player2.firstHitCoordinates) {
+  //     // get random attack direction
+  //     const randomAttackDirection = 2; // one for now
 
-    setTimeout(() => {
-      // sync with the gameboard coordinates
-      const selectorCoords = `[coords="${row},${col}"]`;
-      const selectedDivNodeList = this.field1.querySelectorAll(selectorCoords);
-      const selectedDiv = selectedDivNodeList[0];
+  //     // attack with coords of firstHitCoords
+  //     const row = this.player2.firstHitCoordinates[0];
+  //     const col = this.player2.firstHitCoordinates[1];
+  //     const fieldContent = this.player1.gameboard.field[row][col];
 
-      const fieldContent = this.player1.gameboard.field[row][col];
+  //     // did it hit?
 
-      if (fieldContent === '') {
-        this.missField(selectedDiv);
-        // attack the board
-        this.player1.gameboard.receiveAttack(coords);
+  //     // no
+  //     if (fieldContent === '') {
+  //       // go the opposite direction next time
 
-        // disable player2 turn
-        this.player2Turn = false;
-        // add event listener to field2
-        this.player1Turn = true;
-        this.field2.addEventListener('click', this.clickHandler);
-        // change opacity again
-        this.changeOpacity();
-      }
-      else if (typeof (fieldContent) === 'object') {
-        // this.player2.rememberHit();
-        this.hitField(selectedDiv);
-        // attack again
-        this.aiTurn();
-      }
-    }, 1000);
-  }
+  //       // end AI turn
+  //       // enable player 1 turn
+  //       // add event listener to field2
+  //       // change opacity
+  //     }
+
+  //     // yes
+  //     if (typeof (fieldContent) === 'object') {
+
+  //     }
+  //   }
+
+  //   // no memory
+  //   else if (!this.player2.firstHitCoordinates) {
+  //     // get the attack coordinates
+  //     const coords = this.player2.getAttackCoordinates();
+  //     const row = coords[0];
+  //     const col = coords[1];
+
+  //     setTimeout(() => {
+  //       // sync with the gameboard coordinates
+  //       const selectorCoords = `[coords="${row},${col}"]`;
+  //       const selectedDivNodeList = this.field1.querySelectorAll(selectorCoords);
+  //       const selectedDiv = selectedDivNodeList[0];
+
+  //       const fieldContent = this.player1.gameboard.field[row][col];
+
+  //       if (fieldContent === '') {
+  //         this.missField(selectedDiv);
+  //         // attack the board
+  //         this.player1.gameboard.receiveAttack(coords);
+
+  //         // disable player2 turn
+  //         this.player2Turn = false;
+  //         // add event listener to field2
+  //         this.player1Turn = true;
+  //         this.field2.addEventListener('click', this.clickHandler);
+  //         // change opacity again
+  //         this.changeOpacity();
+  //       }
+  //       else if (typeof (fieldContent) === 'object') {
+  //         // this.player2.rememberHit();
+  //         this.hitField(selectedDiv);
+  //         // attack again
+  //         this.aiTurn();
+  //       }
+  //     }, 1000);
+  //   }
+  // }
 
   removeBoardMessage() {
     while (this.turnBoard.firstChild) {
