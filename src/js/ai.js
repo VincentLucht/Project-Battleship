@@ -22,8 +22,16 @@ class AI {
     ];
   }
 
+  refreshMemory() {
+    this.firstHitCoordinates = undefined;
+    this.attackedShip = undefined;
+    this.nextHitCoordinates = undefined;
+    this.attackDirection = undefined;
+    this.attackChoices = [1, 2, 3, 4];
+  }
+
   removeSurroundingMoves() {
-    // removes the surrounding hits from this.availableMoves, if a ship sank
+    // Implement the logic to remove surrounding moves if a ship sank
   }
 
   getRandomDirection() {
@@ -36,82 +44,104 @@ class AI {
   }
 
   shipSank() {
-    if (this.attackedShip.sunk) {
+    if (this.attackedShip && this.attackedShip.sunk) {
       return 'Sunk';
     }
     return 'Ship not sunk';
   }
 
-  getNextAttackCoordinates(coordinates, attackNumber) {
+  getNextAttackCoordinates(coordinates, attackNumber, depth = 0) {
+    if (depth > 10) { // depth limit to prevent infinite recursion
+      return 'Invalid attack direction';
+    }
+
     const row = coordinates[0];
     const col = coordinates[1];
 
     const randomAttackDirection = attackNumber;
 
-    // attack upper
-    if (randomAttackDirection === 1) {
-      // save the ship to memory
-      if (this.gameboard.field[row - 1]) {
-        const fieldContent = this.gameboard.field[row - 1][col];
+    // Helper function to remove an attack direction from attackChoices
+    const removeAttackChoice = (direction) => {
+      const index = this.attackChoices.indexOf(direction);
+      if (index > -1) {
+        this.attackChoices.splice(index, 1);
+      }
+    };
+
+    const performAttack = (newRow, newCol, direction) => {
+      if (this.gameboard.field[newRow] && this.gameboard.field[newRow][newCol] !== undefined) {
+        const fieldContent = this.gameboard.field[newRow][newCol];
 
         // hits ship
-        if (typeof (fieldContent) === 'object') {
-          this.attackDirection = 'vertical';
-          this.gameboard.receiveAttack([row - 1, col]);
-          return this.getNextAttackCoordinates([row - 1, col], 1);
+        if (typeof fieldContent === 'object') {
+          this.attackDirection = direction;
+          this.gameboard.receiveAttack([newRow, newCol]);
+          return this.getNextAttackCoordinates([newRow, newCol], attackNumber, depth + 1);
         }
-
-        // does not hit ship
         else {
-          // check if ship sank
-          if (this.attackedShip.sunk === true) {
+          removeAttackChoice(attackNumber);
+          if (this.shipSank() === 'Sunk') {
             console.log('Ship successfully sunk');
-          }
-          // determine the next attackDirection
-          if (this.attackedShip.sunk === false) {
-            if (this.gameboard.field[this.firstHitCoordinates[0] + 1]) {
-              return [this.firstHitCoordinates[0] + 1, this.firstHitCoordinates[1]];
-            }
+          } else {
+            this.setNextHitCoordinates(direction);
           }
         }
       }
+    };
+
+    // attack upper
+    if (randomAttackDirection === 1) {
+      return performAttack(row - 1, col, 'vertical');
     }
 
     // attack lower
     if (randomAttackDirection === 2) {
-      if (this.gameboard.field[row + 1]) {
-        const fieldContent = this.gameboard.field[row + 1][col];
-        // hits ship
-        if (typeof (fieldContent) === 'object') {
-          this.attackDirection = 'vertical';
-        }
-        // does not hit ship
-        else {
-          const index = this.attackChoices.indexOf(randomAttackDirection);
-          if (index !== -1) {
-            this.attackChoices.splice(index, 1);
-          }
-        }
-        return [row + 1, col];
-      }
-      else {
-        return 'Lower field does not exist';
-      }
+      return performAttack(row + 1, col, 'vertical');
     }
 
     // attack right
-    // if right hit, attackDirection = horizontal
+    if (randomAttackDirection === 3) {
+      return performAttack(row, col + 1, 'horizontal');
+    }
 
     // attack left
-    // if left hit, attackDirection = horizontal
-
-    // if it doesn't hit, return to the previous hit (this.firstHitCoords)
+    if (randomAttackDirection === 4) {
+      return performAttack(row, col - 1, 'horizontal');
+    }
 
     return 'Invalid attack direction';
   }
 
+  setNextHitCoordinates(direction) {
+    const [row, col] = this.firstHitCoordinates;
+    if (direction === 'vertical') {
+      if (this.attackChoices.includes(1) && this.gameboard.field[row + 1]) {
+        this.nextHitCoordinates = [row + 1, col];
+      }
+      else if (this.attackChoices.includes(2) && this.gameboard.field[row - 1]) {
+        this.nextHitCoordinates = [row - 1, col];
+      }
+    }
+
+    else if (direction === 'horizontal') {
+      if (
+        this.attackChoices.includes(3) &&
+        this.gameboard.field[row] &&
+        this.gameboard.field[row][col + 1] !== undefined
+      ) {
+        this.nextHitCoordinates = [row, col + 1];
+      }
+      else if (
+        this.attackChoices.includes(4) &&
+        this.gameboard.field[row] &&
+        this.gameboard.field[row][col - 1] !== undefined
+      ) {
+        this.nextHitCoordinates = [row, col - 1];
+      }
+    }
+  }
+
   rememberFirstHitCoordinates(coordinates) {
-    // if a ship is hit, remember where it hit the boat
     if (!this.firstHitCoordinates) {
       this.firstHitCoordinates = coordinates;
     }
@@ -125,53 +155,36 @@ class AI {
   }
 
   randomMove() {
-    // it's a bit inefficient, but arr is only size 100
-    // Check if the main array is empty!
-    const randomRowIndex = Math.floor(Math.random() * this.availableMoves.length);
-    let randomRowArray = this.availableMoves[randomRowIndex];
-
-    // Check if the selected subarray is empty!
-    let i = 9;
-    while (randomRowArray.length === 0) {
-      const newRandomArray = this.availableMoves[i];
-      if (newRandomArray === undefined) {
-        return 'No more possible move';
-      }
-      if (newRandomArray.length !== 0) {
-        randomRowArray = newRandomArray;
-        break;
-      }
-      else if (newRandomArray.length === undefined) {
-        return 'No more possible moves';
-      }
-      i -= 1;
+    let availableCells = [];
+    for (const row of this.availableMoves) {
+      availableCells = availableCells.concat(row);
     }
 
-    const randomColIndex = Math.floor(Math.random() * randomRowArray.length);
-    const move = randomRowArray[randomColIndex];
+    if (availableCells.length === 0) {
+      return 'No more possible moves';
+    }
 
-    // remove it from the available choices first
-    randomRowArray.splice(randomColIndex, 1);
+    const randomIndex = Math.floor(Math.random() * availableCells.length);
+    const move = availableCells[randomIndex];
+
+    const row = move[0];
+    const colIndex = this.availableMoves[row].indexOf(move);
+    this.availableMoves[row].splice(colIndex, 1);
 
     return move;
   }
 
   isMoveValid(move) {
-    if (move === 'No more possible move') {
-      return false;
-    }
-    return true;
+    return move !== 'No more possible moves';
   }
 
   getAttackCoordinates() {
     const move = this.randomMove();
 
-    if (this.isMoveValid(move) === true) {
+    if (this.isMoveValid(move)) {
       return move;
     }
-    else {
-      return 'No more possible moves';
-    }
+    return 'No more possible moves';
   }
 }
 
