@@ -239,7 +239,7 @@ class GUI {
         const mode = this.player2.gameboard.determineMode([row, col]);
         const startingPoint = this.player2.gameboard.determineStartingPoint([row, col]);
 
-        let shipSunk = false;
+        let shipSunk = false; // can be removed
 
         // check if the ship sank
         const fieldContent = this.player2.gameboard.field[row][col];
@@ -257,7 +257,7 @@ class GUI {
         if (this.player2.gameboard.receiveAttack(coords) !== 'Success') {
           this.displayBoardMessage(this.player2.gameboard.receiveAttack(coords));
         }
-        else if (shipSunk !== true) { // don't change board, if ship is sunk
+        else if (shipSunk !== true) { // this so eslint doesnt cry
           if (fieldContent === '') {
             this.displayBoardMessage('Miss!');
             this.missField(clickedElement);
@@ -283,76 +283,71 @@ class GUI {
     }
   }
 
-  // aiTurn() {
-  //   // change opacity, signaling AI's turn
-  //   this.changeOpacity();
-  //   // change the board message so that it displays AI's turn
+  aiTurn() {
+    this.changeOpacity();
 
-  //   // does the AI have memory?
-  //   if (this.player2.firstHitCoordinates) {
-  //     // get random attack direction
-  //     const randomAttackDirection = 2; // one for now
+    // has memory
+    if (this.player2.firstHitCoordinates) {
+      console.log('Has memory');
+    }
 
-  //     // attack with coords of firstHitCoords
-  //     const row = this.player2.firstHitCoordinates[0];
-  //     const col = this.player2.firstHitCoordinates[1];
-  //     const fieldContent = this.player1.gameboard.field[row][col];
+    // no memory
+    else if (!this.player2.firstHitCoordinates) {
+      // get the attack coordinates
+      const attackCoordinates = this.player2.getRandomCoordinates();
+      const row = attackCoordinates[0];
+      const col = attackCoordinates[1];
 
-  //     // did it hit?
+      console.log(attackCoordinates);
 
-  //     // no
-  //     if (fieldContent === '') {
-  //       // go the opposite direction next time
+      // delete from available moves (gameboard)
+      this.player2.removeFromAvailableMoves(attackCoordinates);
 
-  //       // end AI turn
-  //       // enable player 1 turn
-  //       // add event listener to field2
-  //       // change opacity
-  //     }
+      setTimeout(() => {
+        // sync with the gameboard coordinates
+        const selectorCoords = `[coords="${row},${col}"]`;
+        const selectedDivNodeList = this.field1.querySelectorAll(selectorCoords);
+        const selectedDiv = selectedDivNodeList[0];
 
-  //     // yes
-  //     if (typeof (fieldContent) === 'object') {
+        // check if the ship sank
+        const fieldContent = this.player1.gameboard.field[row][col];
+        if (typeof (fieldContent) === 'object') {
+          if (fieldContent.timesHit === fieldContent.length - 1) {
+            // get mode and starting point
+            const mode = this.player1.gameboard.determineMode([row, col]);
+            const startingPoint = this.player1.gameboard.determineStartingPoint([row, col]);
 
-  //     }
-  //   }
+            // eslint-disable-next-line max-len
+            this.refreshSurroundings(startingPoint, this.field1, this.player1.gameboard, fieldContent, mode);
+            this.hitField(selectedDiv);
+          }
+        }
 
-  //   // no memory
-  //   else if (!this.player2.firstHitCoordinates) {
-  //     // get the attack coordinates
-  //     const coords = this.player2.getAttackCoordinates();
-  //     const row = coords[0];
-  //     const col = coords[1];
+        if (fieldContent === 'miss') {
+          // remove from available moves, due to AI not refreshing board
+          this.player2.removeFromAvailableMoves([row, col]);
+          this.aiTurn();
+        }
+        else if (fieldContent === '') {
+          this.missField(selectedDiv);
 
-  //     setTimeout(() => {
-  //       // sync with the gameboard coordinates
-  //       const selectorCoords = `[coords="${row},${col}"]`;
-  //       const selectedDivNodeList = this.field1.querySelectorAll(selectorCoords);
-  //       const selectedDiv = selectedDivNodeList[0];
+          this.player1.gameboard.receiveAttack(attackCoordinates);
+          this.player2Turn = false;
+          this.player1Turn = true;
+          this.field2.addEventListener('click', this.clickHandler);
 
-  //       const fieldContent = this.player1.gameboard.field[row][col];
+          this.changeOpacity();
+        }
+        else if (typeof (fieldContent) === 'object') {
+          this.hitField(selectedDiv);
+          this.player1.gameboard.receiveAttack(attackCoordinates);
 
-  //       if (fieldContent === '') {
-  //         this.missField(selectedDiv);
-  //         // attack the board
-  //         this.player1.gameboard.receiveAttack(coords);
-
-  //         // disable player2 turn
-  //         this.player2Turn = false;
-  //         // add event listener to field2
-  //         this.player1Turn = true;
-  //         this.field2.addEventListener('click', this.clickHandler);
-  //         // change opacity again
-  //         this.changeOpacity();
-  //       }
-  //       else if (typeof (fieldContent) === 'object') {
-  //         // this.player2.rememberHit();
-  //         this.hitField(selectedDiv);
-  //         // attack again
-  //         this.aiTurn();
-  //       }
-  //     }, 1000);
-  //   }
-  // }
+          // ai attack again
+          this.aiTurn();
+        }
+      }, 1);
+    }
+  }
 
   removeBoardMessage() {
     while (this.turnBoard.firstChild) {
