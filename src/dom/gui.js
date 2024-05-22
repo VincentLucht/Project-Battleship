@@ -304,7 +304,7 @@ class GUI {
       this.player2Turn = false;
       this.player1Turn = true;
       this.field2.addEventListener('click', this.clickHandler);
-      // ADD OPACITY HERE?
+      this.changeOpacity();
     };
 
     const didShipSink = (row, col, fieldContent, selectedDiv) => {
@@ -332,6 +332,7 @@ class GUI {
       if (this.player2.nextHitCoordinates) {
         // Path 11: is the move inside of the field?
         const { attackDirection } = this.player2;
+        console.log({ attackDirection });
         const directionOffset = this.player2.getDirection(attackDirection);
         const newRow = this.player2.nextHitCoordinates[0];
         const newCol = this.player2.nextHitCoordinates[1];
@@ -354,7 +355,6 @@ class GUI {
             if (fieldContent === 'miss') {
               // remove from available moves, due to AI not refreshing board
               this.player2.removeFromAvailableMoves([newRow, newCol]);
-
               // get the opposite direction
               const oppositeDirection = this.player2.getOppositeDirection(attackDirection);
               const newDirectionOffset = oppositeDirection;
@@ -380,15 +380,12 @@ class GUI {
               // get the opposite direction
               const oppositeDirection = this.player2.getOppositeDirection(attackDirection);
               const newDirectionOffset = oppositeDirection;
-              console.log({ oppositeDirection });
-              console.log({ newDirectionOffset });
               // get firstHitCoordinates and combine it with the opposite direction
               const nextRow = this.player2.firstHitCoordinates[0] + newDirectionOffset[0];
               const nextCol = this.player2.firstHitCoordinates[1] + newDirectionOffset[1];
               // set it to nexHitCoordinates
               this.player2.nextHitCoordinates = [nextRow, nextCol];
 
-              // end turn
               changeTurn();
             }
             else if (typeof (fieldContent) === 'object') {
@@ -420,11 +417,11 @@ class GUI {
                 this.player2.removeFromAvailableMoves([newRow, newCol]);
                 // set the nextHitCoordinates // can be out of bounds!
                 const availableMoves = this.player2.directions;
-                console.log({ directionOffset, availableMoves });
+                const currentAttackDirection = this.player2.attackDirection;
+                console.log({ directionOffset, availableMoves, currentAttackDirection });
                 const nextRow = newRow + directionOffset[0];
                 const nextCol = newCol + directionOffset[1];
                 this.player2.nextHitCoordinates = [nextRow, nextCol];
-                console.log({ directionOffset });
                 // recursive call
                 this.aiTurn();
               }
@@ -438,6 +435,8 @@ class GUI {
             this.player2.removeFromAvailableMoves([newRow, newCol]);
             // get the opposite direction
             const oppositeDirection = this.player2.getOppositeDirection(attackDirection);
+            // set attack direction to this
+            this.player2.attackDirection = oppositeDirection;
             const newDirectionOffset = this.player2.getDirection(oppositeDirection);
             // get firstHitCoordinates and combine it with the opposite direction
             const nextRow = this.player2.firstHitCoordinates[0] + newDirectionOffset[0];
@@ -535,8 +534,6 @@ class GUI {
             // Path 3.1: no hit, miss
             else if (fieldContent === '') {
               console.log('Path 3.1: miss');
-              // change opacity
-              this.changeOpacity();
               // attack the field
               this.missField(selectedDiv);
               // attack the gameboard
@@ -607,7 +604,6 @@ class GUI {
           this.missField(selectedDiv);
 
           this.player1.gameboard.receiveAttack(attackCoordinates);
-          this.changeOpacity();
           changeTurn();
         }
         else if (typeof (fieldContent) === 'object') {
@@ -623,7 +619,7 @@ class GUI {
 
           this.aiTurn();
         }
-      }, 1000);
+      }, 10);
     }
   }
 
