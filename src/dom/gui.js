@@ -300,6 +300,7 @@ class GUI {
   }
 
   aiTurn() {
+    // Attacks a random field, until it hits one - recursively(!!!) hunts the ship down
     const changeTurn = () => {
       this.player2Turn = false;
       this.player1Turn = true;
@@ -349,6 +350,7 @@ class GUI {
         const directionOffset = this.player2.getDirection(attackDirection);
         const newRow = this.player2.nextHitCoordinates[0];
         const newCol = this.player2.nextHitCoordinates[1];
+        console.log('%cNext coordinates will be: [%d, %d]', 'color: red;', newRow, newCol);
         // sync with gameboard
         const selectorCoords = `[coords="${newRow},${newCol}"]`;
         const selectedDivNodeList = this.field1.querySelectorAll(selectorCoords);
@@ -365,6 +367,7 @@ class GUI {
 
             // Path 12: Does it hit a ship?
             if (fieldContent === 'miss') {
+              console.log('%cPath 12.1: Field already attacked', 'color: red');
               // remove from available moves, due to AI not refreshing board
               this.player2.removeFromAvailableMoves([newRow, newCol]);
               // get the opposite direction
@@ -373,6 +376,7 @@ class GUI {
               // get firstHitCoordinates and combine it with the opposite direction
               const nextRow = this.player2.firstHitCoordinates[0] + newDirectionOffset[0];
               const nextCol = this.player2.firstHitCoordinates[1] + newDirectionOffset[1];
+              console.log({ nextRow, nextCol });
               // set it to nexHitCoordinates
               this.player2.nextHitCoordinates = [nextRow, nextCol];
 
@@ -380,7 +384,7 @@ class GUI {
             }
             else if (fieldContent === '') {
               // Path 12.1: no hit, misses
-              console.log('Path 12.1: miss');
+              console.log('%c Path 12.1: miss', 'color: blue');
               executeAttack(newRow, newCol, selectedDiv, false);
               // get the opposite direction
               const oppositeDirection = this.player2.getOppositeDirection(attackDirection);
@@ -388,6 +392,7 @@ class GUI {
               // get firstHitCoordinates and combine it with the opposite direction
               const nextRow = this.player2.firstHitCoordinates[0] + newDirectionOffset[0];
               const nextCol = this.player2.firstHitCoordinates[1] + newDirectionOffset[1];
+              console.log({ nextRow, nextCol });
               // set it to nexHitCoordinates
               this.player2.nextHitCoordinates = [nextRow, nextCol];
 
@@ -608,8 +613,6 @@ class GUI {
   }
 
   changeOpacity() {
-    // ALSOOOO REMOVE HOVER CSS FROM OTHER FIELD!
-
     // if player one's turn
     if (this.player1Turn === true) {
       // change text content to "Turn: Player 1"

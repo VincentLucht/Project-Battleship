@@ -2,9 +2,9 @@
 - [x] reduce amount of refreshing the board in the clickHandler() function
 - [ ] reduce code duplication in the checkProximity() function, can combine multiple statements
 - [x] add hit effect when this.receiveAttack() runs, so that it looks nicer
-- [ ] add AI for the enemy
+- [x] add AI for the enemy
 - [ ] add game over
 - [ ] use recursion for determine mode?
 - [ ] use ES module instead of module.exports
 - [ ] refactor obvious conditions, like if (player1Turn === true) => if (player1Turn)
-- [ ] remove hover effect from AI field
+- [x] remove hover effect from AI field
