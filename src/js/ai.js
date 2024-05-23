@@ -2,11 +2,17 @@ class AI {
   constructor(gameboard) {
     this.gameboard = gameboard;
     this.firstHitCoordinates = undefined;
-    this.attackedShip = undefined;
     this.nextHitCoordinates = undefined;
     this.attackDirection = undefined;
 
     this.directions = {
+      up: [-1, 0],
+      down: [1, 0],
+      left: [0, -1],
+      right: [0, 1],
+    };
+
+    this.directionsFull = {
       up: [-1, 0],
       down: [1, 0],
       left: [0, -1],
@@ -31,7 +37,7 @@ class AI {
     this.firstHitCoordinates = coordinates;
   }
 
-  clearHitData() {
+  resetMemory() {
     this.firstHitCoordinates = undefined;
     this.nextHitCoordinates = undefined;
     this.attackDirection = undefined;
@@ -43,8 +49,8 @@ class AI {
     };
   }
 
-  removeAvailableMoveSurroundings() {
-
+  clearNextHitCoordinates() {
+    this.nextHitCoordinates = undefined;
   }
 
   removeFromAvailableMoves(valueToRemove) {
@@ -58,6 +64,27 @@ class AI {
     }
   }
 
+  isMoveInsideField(row, col) {
+    const rowAmount = 10;
+    const colAmount = 10;
+
+    if (row >= 0 && row < rowAmount && col >= 0 && col < colAmount) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  isFieldAttacked(fieldContent) {
+    if (fieldContent === 'miss') {
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
+
   getRandomCoordinates() {
     // it's a bit inefficient, but arr is only size 100
     const randomRowIndex = Math.floor(Math.random() * this.availableMoves.length);
@@ -68,7 +95,7 @@ class AI {
     while (randomRowArray.length === 0) {
       const newRandomArray = this.availableMoves[i];
       if (newRandomArray === undefined) {
-        return 'No more possible move';
+        return 'No more possible moves';
       }
       if (newRandomArray.length !== 0) {
         randomRowArray = newRandomArray;
@@ -99,6 +126,10 @@ class AI {
 
   deleteDirection(key) {
     delete this.directions[key];
+  }
+
+  getDirection(key) {
+    return this.directions[key];
   }
 
   getRandomDirection() {

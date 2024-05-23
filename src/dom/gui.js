@@ -307,6 +307,18 @@ class GUI {
       this.changeOpacity();
     };
 
+    const executeAttack = (newRow, newCol, selectedDiv, hit) => {
+      // removes move from all available moves, attacks field and gameboard
+      if (hit) {
+        this.hitField(selectedDiv);
+      }
+      else {
+        this.missField(selectedDiv);
+      }
+      this.player1.gameboard.receiveAttack([newRow, newCol]);
+      this.player2.removeFromAvailableMoves([newRow, newCol]);
+    };
+
     const didShipSink = (row, col, fieldContent, selectedDiv) => {
       if (fieldContent.timesHit === fieldContent.length - 1) {
         const mode = this.player1.gameboard.determineMode([row, col]);
@@ -322,6 +334,8 @@ class GUI {
       }
     };
 
+    const TIMEOUTAMOUNT = 1;
+
     this.changeOpacity();
 
     // has memory
@@ -332,7 +346,6 @@ class GUI {
       if (this.player2.nextHitCoordinates) {
         // Path 11: is the move inside of the field?
         const { attackDirection } = this.player2;
-        console.log({ attackDirection });
         const directionOffset = this.player2.getDirection(attackDirection);
         const newRow = this.player2.nextHitCoordinates[0];
         const newCol = this.player2.nextHitCoordinates[1];
@@ -343,7 +356,6 @@ class GUI {
 
         // Path 11: yes, move is inside of the field
         if (this.player2.isMoveInsideField(newRow, newCol)) {
-          // (can be undefined/ out of bounds!!!!!!)
           const fieldContent = this.player1.gameboard.field[newRow][newCol];
           console.log('Path 11: move is inside of field');
           // Path 11.5: is the move valid?
@@ -369,14 +381,7 @@ class GUI {
             else if (fieldContent === '') {
               // Path 12.1: no hit, misses
               console.log('Path 12.1: miss');
-              // change opacity
-
-              // attack the gameboard
-              this.player1.gameboard.receiveAttack([newRow, newCol]);
-              // attack the field
-              this.missField(selectedDiv);
-              // delete from available moves
-              this.player2.removeFromAvailableMoves([newRow, newCol]);
+              executeAttack(newRow, newCol, selectedDiv, false);
               // get the opposite direction
               const oppositeDirection = this.player2.getOppositeDirection(attackDirection);
               const newDirectionOffset = oppositeDirection;
@@ -395,30 +400,15 @@ class GUI {
               if (didShipSink(newRow, newCol, fieldContent, selectedDiv) === true) {
                 // Path 13.1: yes, sinks the ship
                 console.log('Path 13.1: does sink the ship!');
-                // attack the field
-                this.hitField(selectedDiv);
-                // attack the gameboard
-                this.player1.gameboard.receiveAttack([newRow, newCol]);
-                // delete it from availableMoves
-                this.player2.removeFromAvailableMoves([newRow, newCol]);
-                // reset the computer memory
+                executeAttack(newRow, newCol, selectedDiv, true);
                 this.player2.resetMemory();
-                // recursive call
                 this.aiTurn();
               }
               else {
                 // Path 13.1: no, does not sink the ship
                 console.log('Path 13.1: does not sink ship');
-                // attack the field
-                this.hitField(selectedDiv);
-                // attack the gameboard
-                this.player1.gameboard.receiveAttack([newRow, newCol]);
-                // delete from available moves
-                this.player2.removeFromAvailableMoves([newRow, newCol]);
-                // set the nextHitCoordinates // can be out of bounds!
-                const availableMoves = this.player2.directions;
-                const currentAttackDirection = this.player2.attackDirection;
-                console.log({ directionOffset, availableMoves, currentAttackDirection });
+                executeAttack(newRow, newCol, selectedDiv, true);
+                // set the nextHitCoordinates
                 const nextRow = newRow + directionOffset[0];
                 const nextCol = newCol + directionOffset[1];
                 this.player2.nextHitCoordinates = [nextRow, nextCol];
@@ -486,7 +476,6 @@ class GUI {
           console.log('Path 1.5: Move is inside of the field');
           // Path 2: is the direction valid?
           const fieldContent = this.player1.gameboard.field[newRow][newCol];
-          console.log(fieldContent);
           // Path 2.1: yes, valid direction
           if (this.player2.isFieldAttacked(fieldContent)) {
             console.log('Path 2.1: valid direction');
@@ -499,26 +488,15 @@ class GUI {
               // Path 4.1 yes, sinks ship
               if (didShipSink(newRow, newCol, fieldContent, selectedDiv) === true) {
                 console.log('Path 4.1: ship did sink');
-                // attack the gameboard
-                this.player1.gameboard.receiveAttack([newRow, newCol]);
-                this.hitField(selectedDiv);
-                // delete from availableMoves
-                this.player2.removeFromAvailableMoves([newRow, newCol]);
-                // reset the computer memory
+                executeAttack(newRow, newCol, selectedDiv, true);
                 this.player2.resetMemory();
-                // recursive call
                 this.aiTurn();
               }
 
               // Path 4.1 no, doesn't sink ship
               else {
                 console.log('Path 4.1: ship did not sink');
-                // attack the field
-                this.hitField(selectedDiv);
-                // attack the gameboard
-                this.player1.gameboard.receiveAttack([newRow, newCol]);
-                // delete from availableMoves
-                this.player2.removeFromAvailableMoves([newRow, newCol]);
+                executeAttack(newRow, newCol, selectedDiv, true);
                 // continue to attack this direction:
                 // save attackDirection
                 this.player2.attackDirection = randomDirection.direction;
@@ -526,7 +504,6 @@ class GUI {
                 const nextRow = newRow + directionOffset[0];
                 const nextCol = newCol + directionOffset[1];
                 this.player2.nextHitCoordinates = [nextRow, nextCol];
-                // console.log('Next hit coordinates: ', this.player2.nextHitCoordinates);
                 this.aiTurn();
               }
             }
@@ -534,13 +511,8 @@ class GUI {
             // Path 3.1: no hit, miss
             else if (fieldContent === '') {
               console.log('Path 3.1: miss');
-              // attack the field
-              this.missField(selectedDiv);
-              // attack the gameboard
-              this.player1.gameboard.receiveAttack([newRow, newCol]);
-              // delete from availableMoves
+              executeAttack(newRow, newCol, selectedDiv, false);
               this.player2.deleteDirection(randomDirection.direction);
-
               changeTurn();
             }
           }
@@ -552,7 +524,6 @@ class GUI {
             this.player2.removeFromAvailableMoves([newRow, newCol]);
             // delete that direction
             this.player2.deleteDirection(randomDirection.direction);
-            // recursive call, as it didn't attack
             this.aiTurn();
           }
         }
@@ -572,7 +543,7 @@ class GUI {
       const row = attackCoordinates[0];
       const col = attackCoordinates[1];
 
-      // AI exhausts all its moves, game over (can this happen?)
+      // AI exhausts all its moves, game over
       if (attackCoordinates === 'No more possible moves') {
         console.log('Game ended');
         return;
@@ -619,7 +590,7 @@ class GUI {
 
           this.aiTurn();
         }
-      }, 10);
+      }, TIMEOUTAMOUNT);
     }
   }
 

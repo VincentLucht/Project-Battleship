@@ -82,13 +82,15 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: crosshair;
   background-color: #2489DA;
   min-width: 36px;
   min-height: 36px;
 } 
+.field2>div {
+  cursor: crosshair;
+}
 
-.field1>div:hover, .field2>div:hover {
+.field2>div:hover {
   background-color: purple;
 }
 

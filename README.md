@@ -7,3 +7,4 @@
 - [ ] use recursion for determine mode?
 - [ ] use ES module instead of module.exports
 - [ ] refactor obvious conditions, like if (player1Turn === true) => if (player1Turn)
+- [ ] remove hover effect from AI field
