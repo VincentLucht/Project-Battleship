@@ -9,12 +9,37 @@
   <header>Battleship</header>
   <main>
     <div class="turnBoardWrapper">
-      <div class="turnBoard color-change-green">Your turn!</div>
+      <div class="turnBoard color-change-green">Place your ships!</div>
     </div>
 
     <div class="fieldWrapper">
+      <div class="placementWrapper">
+        <div class="buttonLocation">
+          <button class="randomButton">Random</button>
+          <button class="resetButton">Reset</button>
+          <button class="switchModeButton">Mode: <span class="currentMode">Horizontal</span></button>
+        </div>
+
+        <div class="placeShips">
+          <div>
+            <div class="ship" draggable="true" length="5">Aircraft Carrier</div>
+          </div>
+          <div>
+            <div class="ship" draggable="true" length="4">Battleship</div>
+          </div>
+          <div>
+            <div class="ship" draggable="true" length="3">Cruiser</div>
+          </div>
+          <div>
+            <div class="ship" draggable="true" length="3">Submarine</div>
+          </div>
+          <div>
+            <div class="ship" draggable="true" length="2">Destroyer</div>
+          </div>
+        </div>
+      </div>
+        
       <div class="field1"></div>
-      <div class="field2"></div>
     </div>
   </main>
   <footer>
