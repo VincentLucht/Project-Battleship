@@ -82,6 +82,11 @@ class ShipPlacement {
     return fakeShipObject;
   }
 
+  getShipName(selectedShip) {
+    const name = selectedShip.getAttribute('name');
+    return name;
+  }
+
   doesShipHaveInfo(selectedShip) {
     // checks if the ship has the info custom data attribute
     const fakeShipObject = this.getInfoFromShip(selectedShip);
@@ -97,7 +102,9 @@ class ShipPlacement {
     const coordinates = this.getCoordinates(this.currentSelected);
     const length = parseInt(this.getLength(selectedShip), 10);
     const coordinatesArray = this.getNextShipCoordinates(coordinates, length);
+    const shipName = this.getShipName(selectedShip);
     const fakeShip = { // need to create the fake ship here!
+      name: shipName,
       length,
       position: coordinatesArray,
       mode: this.placementMode,
@@ -112,13 +119,36 @@ class ShipPlacement {
   removeShipFromGameboard(selectedShip) {
     // removes the ship from the actual gameboard field
     const fakeShipObject = this.getInfoFromShip(selectedShip);
+    let detectedShip;
+
     for (let i = 0; i < fakeShipObject.length; i++) {
       const coordinates = fakeShipObject.position[i];
       const row = coordinates[0];
       const col = coordinates[1];
       // check if the coordinates are within the gameboard boundaries, extends gameboard otherwise
       if (row >= 0 && row < 10 && col >= 0 && col < 10) {
-        this.gameboard.field[row][col] = '';
+        if (typeof (this.gameboard.field[row][col]) === 'object') {
+          detectedShip = this.gameboard.field[row][col];
+          break;
+        }
+      }
+    }
+
+    if (detectedShip) {
+      if (detectedShip.name !== fakeShipObject.name) {
+        return false;
+      }
+    }
+
+    for (let i = 0; i < fakeShipObject.length; i++) {
+      const coordinates = fakeShipObject.position[i];
+      const row = coordinates[0];
+      const col = coordinates[1];
+      // check if the coordinates are within the gameboard boundaries, extends gameboard otherwise
+      if (row >= 0 && row < 10 && col >= 0 && col < 10) {
+        if (this.gameboard.field[row][col] !== fakeShipObject) {
+          this.gameboard.field[row][col] = '';
+        }
       }
     }
   }
@@ -133,7 +163,9 @@ class ShipPlacement {
         let selectedShip = event.target;
         if (this.doesShipHaveInfo(selectedShip)) {
           // deletes the ship from the gameboard when moved
-          this.removeShipFromGameboard(selectedShip);
+          if (!this.removeShipFromGameboard(selectedShip)) {
+            console.log('Nope!');
+          }
         }
 
         this.field.addEventListener('dragover', (event) => {
@@ -151,6 +183,7 @@ class ShipPlacement {
             }
             else {
               console.log('Not allowed');
+              selectedShip = null;
             }
           }
         });
@@ -161,7 +194,7 @@ class ShipPlacement {
   addListenerToField() {
     // gets the currently hovered over div
     let cooldownActive = false;
-    const cooldownDuration = 100;
+    const cooldownDuration = 200;
 
     const handleChildClick = (event) => {
       if (!cooldownActive) {
@@ -201,6 +234,7 @@ class ShipPlacement {
         this.placementMode = 'horizontal';
         switchModeButton.textContent = 'Mode: Horizontal';
       }
+      console.log(this.gameboard.field);
     });
   }
 }
