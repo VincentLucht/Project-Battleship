@@ -19,7 +19,8 @@ class ShipPlacement {
     return length;
   }
 
-  getNextShipCoordinates(coordinates, length, mode = 'horizontal') {
+  getNextShipCoordinates(coordinates, length) {
+    // gets the coordinates of the whole ship
     const nextCoordinatesArray = [];
     const row = coordinates[0];
     const col = coordinates[1];
@@ -27,7 +28,7 @@ class ShipPlacement {
     for (let i = 0; i < length; i++) {
       let newRow;
       let newCol;
-      if (mode === 'horizontal') {
+      if (this.placementMode === 'horizontal') {
         newRow = row;
         newCol = col + i;
       }
@@ -93,24 +94,19 @@ class ShipPlacement {
   }
 
   isPlacementAllowed(selectedShip) {
-    if (this.placementMode === 'horizontal') {
-      const coordinates = this.getCoordinates(this.currentSelected);
-      const length = parseInt(this.getLength(selectedShip), 10);
-      const coordinatesArray = this.getNextShipCoordinates(coordinates, length);
-      const fakeShip = { // need to create the fake ship here!
-        length,
-        position: coordinatesArray,
-        mode: 'horizontal',
-      };
+    const coordinates = this.getCoordinates(this.currentSelected);
+    const length = parseInt(this.getLength(selectedShip), 10);
+    const coordinatesArray = this.getNextShipCoordinates(coordinates, length);
+    const fakeShip = { // need to create the fake ship here!
+      length,
+      position: coordinatesArray,
+      mode: this.placementMode,
+    };
 
-      this.addInfoToShip(fakeShip, selectedShip);
+    this.addInfoToShip(fakeShip, selectedShip);
 
-      const placementAllowed = this.gameboard.placeShip(fakeShip, coordinates);
-      return placementAllowed;
-    }
-  }
-
-  searchForShip(selectedDiv) {
+    const placementAllowed = this.gameboard.placeShip(fakeShip, coordinates, this.placementMode);
+    return placementAllowed;
   }
 
   removeShipFromGameboard(selectedShip) {
@@ -184,6 +180,28 @@ class ShipPlacement {
 
     const field = document.querySelector('.field1');
     field.addEventListener('dragover', handleChildClick);
+  }
+
+  // BUTTONS
+  enableButtons() {
+    const randomButton = document.querySelector('.randomButton');
+
+    const resetButton = document.querySelector('.resetButton');
+    resetButton.addEventListener('click', () => {
+      window.location.reload();
+    });
+
+    const switchModeButton = document.querySelector('.switchModeButton');
+    switchModeButton.addEventListener('click', () => {
+      if (this.placementMode === 'horizontal') {
+        this.placementMode = 'vertical';
+        switchModeButton.textContent = 'Mode: Vertical';
+      }
+      else {
+        this.placementMode = 'horizontal';
+        switchModeButton.textContent = 'Mode: Horizontal';
+      }
+    });
   }
 }
 
