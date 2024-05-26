@@ -2,222 +2,236 @@ class ShipPlacement {
   constructor(gameboard, field) {
     this.gameboard = gameboard;
     this.field = field;
-    this.currentSelected = null;
     this.placementMode = 'horizontal';
+    this.draggedShip = null;
   }
 
-  getCoordinates(div) {
-    const rawCoordinates = div.getAttribute('coords');
-    const row = parseInt(rawCoordinates[0], 10);
-    const col = parseInt(rawCoordinates[2], 10);
-    const coordinates = [row, col];
-    return coordinates;
-  }
-
-  getLength(div) {
-    const length = div.getAttribute('length');
-    return length;
-  }
-
-  getNextShipCoordinates(coordinates, length) {
-    // gets the coordinates of the whole ship
-    const nextCoordinatesArray = [];
-    const row = coordinates[0];
-    const col = coordinates[1];
-
-    for (let i = 0; i < length; i++) {
-      let newRow;
-      let newCol;
-      if (this.placementMode === 'horizontal') {
-        newRow = row;
-        newCol = col + i;
+  refreshGUI() {
+    // loop through field and create a node list of all divs there
+    const arrChildDivs = [];
+    for (let i = 0; i < 100; i++) {
+      const child = this.field.children[i];
+      if (child.classList.contains('unselectable')) {
+        arrChildDivs.push(child);
       }
-      else {
-        newRow = row + i;
-        newCol = col;
-      }
-      nextCoordinatesArray.push([newRow, newCol]);
     }
 
-    return nextCoordinatesArray;
-  }
-
-  getNextFieldCoordinates(nextCoordinatesArray) {
-    // gets the div's next to where you placed the ship
-    const allDivs = [];
-    for (let i = 0; i < nextCoordinatesArray.length; i++) {
-      const currentArray = nextCoordinatesArray[i];
-      const row = currentArray[0];
-      const col = currentArray[1];
-      // sync with gameboard
-      const selectorCoords = `[coords="${row},${col}"]`;
-      const selectedDivNodeList = this.field.querySelectorAll(selectorCoords);
-      const selectedDiv = selectedDivNodeList[0];
-      if (selectedDiv === undefined) {
-        return false;
+    // convert to a 2D array
+    const arr2D = [];
+    for (let i = 0; i < 10; i++) {
+      const row = [];
+      for (let j = 0; j < 10; j++) {
+        row.push(arrChildDivs[i * 10 + j]);
       }
-      allDivs.push(selectedDiv);
+      arr2D.push(row);
     }
-    return allDivs;
+
+    // loop through the gameboard and assign the correct color to the field
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        const field = this.gameboard.field[i][j];
+        const GUIfield = arr2D[i][j];
+        if (typeof (field) === 'object') {
+          GUIfield.style.backgroundColor = 'orange';
+        }
+        else if (field === '') {
+          GUIfield.style.backgroundColor = '';
+        }
+      }
+    }
   }
 
-  placeNextShips(selectedShip) {
-    const coordinates = this.getCoordinates(this.currentSelected);
-    const length = parseInt(this.getLength(selectedShip), 10);
-    const nextCoordinatesArray = this.getNextShipCoordinates(coordinates, length);
-    const nextFieldArray = this.getNextFieldCoordinates(nextCoordinatesArray);
-    console.log(nextFieldArray);
-  }
-
-  addInfoToShip(fakeShip, div) {
-    // adds the fake ship object as a custom data attribute to the selected ship
-    const fakeShipString = JSON.stringify(fakeShip);
-    div.setAttribute('info', fakeShipString);
-  }
-
-  getInfoFromShip(div) {
-    // retrieves the stringified object from the custom data attribute of the selected ship
-    const fakeShip = div.getAttribute('info');
-    const fakeShipObject = JSON.parse(fakeShip);
-    return fakeShipObject;
-  }
-
-  getShipName(selectedShip) {
-    const name = selectedShip.getAttribute('name');
+  getShipName() {
+    const name = this.draggedShip.getAttribute('name');
     return name;
   }
 
-  doesShipHaveInfo(selectedShip) {
-    // checks if the ship has the info custom data attribute
-    const fakeShipObject = this.getInfoFromShip(selectedShip);
-    if (fakeShipObject) {
-      return true;
-    }
-    else {
-      return false;
-    }
+  getShipLength() {
+    const length = parseInt(this.draggedShip.getAttribute('length'), 10);
+    return length;
   }
 
-  isPlacementAllowed(selectedShip) {
-    const coordinates = this.getCoordinates(this.currentSelected);
-    const length = parseInt(this.getLength(selectedShip), 10);
-    const coordinatesArray = this.getNextShipCoordinates(coordinates, length);
-    const shipName = this.getShipName(selectedShip);
-    const fakeShip = { // need to create the fake ship here!
-      name: shipName,
+  getCoordinates(dropTarget, attributeName = 'coords') {
+    const coordinates = dropTarget.getAttribute(attributeName);
+    const row = parseInt(coordinates[0], 10);
+    const col = parseInt(coordinates[2], 10);
+    return [row, col];
+  }
+
+  createShipObject(dropTarget) {
+    const name = this.getShipName();
+    const length = this.getShipLength();
+    const coordinates = this.getCoordinates(dropTarget);
+    this.getShipName();
+
+    const shipObject = {
+      name,
       length,
-      position: coordinatesArray,
+      currentPosition: coordinates,
       mode: this.placementMode,
     };
 
-    this.addInfoToShip(fakeShip, selectedShip);
-
-    const placementAllowed = this.gameboard.placeShip(fakeShip, coordinates, this.placementMode);
-    return placementAllowed;
+    return shipObject;
   }
 
-  removeShipFromGameboard(selectedShip) {
-    // removes the ship from the actual gameboard field
-    const fakeShipObject = this.getInfoFromShip(selectedShip);
-    let detectedShip;
+  removeFromGameboard() {
+    const mode = this.draggedShip.getAttribute('mode');
+    const startingPoint = this.getCoordinates(this.draggedShip, 'startingPoint');
+    const length = this.getShipLength();
 
-    for (let i = 0; i < fakeShipObject.length; i++) {
-      const coordinates = fakeShipObject.position[i];
-      const row = coordinates[0];
-      const col = coordinates[1];
-      // check if the coordinates are within the gameboard boundaries, extends gameboard otherwise
-      if (row >= 0 && row < 10 && col >= 0 && col < 10) {
-        if (typeof (this.gameboard.field[row][col]) === 'object') {
-          detectedShip = this.gameboard.field[row][col];
-          break;
-        }
-      }
-    }
+    for (let i = 0; i < length; i++) {
+      let row;
+      let col;
 
-    if (detectedShip) {
-      if (detectedShip.name !== fakeShipObject.name) {
-        return false;
+      if (mode === 'horizontal') {
+        [row] = startingPoint;
+        col = startingPoint[1] + i;
       }
-    }
+      else {
+        row = startingPoint[0] + i;
+        [, col] = startingPoint;
+      }
 
-    for (let i = 0; i < fakeShipObject.length; i++) {
-      const coordinates = fakeShipObject.position[i];
-      const row = coordinates[0];
-      const col = coordinates[1];
-      // check if the coordinates are within the gameboard boundaries, extends gameboard otherwise
-      if (row >= 0 && row < 10 && col >= 0 && col < 10) {
-        if (this.gameboard.field[row][col] !== fakeShipObject) {
-          this.gameboard.field[row][col] = '';
-        }
-      }
+      this.gameboard.field[row][col] = '';
     }
   }
 
-  addDraggableCursor() {
-    // main loop
-    const allShips = document.querySelectorAll('.ship');
-
-    for (let i = 0; i < allShips.length; i++) {
-      const ship = allShips[i];
-      ship.addEventListener('dragstart', (event) => {
-        let selectedShip = event.target;
-        if (this.doesShipHaveInfo(selectedShip)) {
-          // deletes the ship from the gameboard when moved
-          if (!this.removeShipFromGameboard(selectedShip)) {
-            console.log('Nope!');
+  getCurrentShipLocation() {
+    // returns the location of the current ship
+    const shipName = this.getShipName();
+    const arrCoordinates = [];
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        const field = this.gameboard.field[i][j];
+        if (typeof (field) === 'object') {
+          if (field.name === shipName) {
+            arrCoordinates.push([i, j]);
           }
         }
+      }
+    }
+    return arrCoordinates;
+  }
 
-        this.field.addEventListener('dragover', (event) => {
-          event.preventDefault();
-        });
-        this.field.addEventListener('drop', () => {
-          if (selectedShip !== null) {
-            if (this.isPlacementAllowed(selectedShip) === 'Success') {
-              console.log('Placement allowed!');
-
-              this.currentSelected.appendChild(selectedShip);
-              this.placeNextShips(selectedShip);
-
-              selectedShip = null;
-            }
-            else {
-              console.log('Not allowed');
-              selectedShip = null;
-            }
+  doesShipExist() {
+    // checks if the currently dragged ship already exists in the gameboard
+    const shipName = this.getShipName();
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        const field = this.gameboard.field[i][j];
+        if (typeof (field) === 'object') {
+          if (field.name === shipName) {
+            return true;
           }
-        });
+        }
+      }
+    }
+    return false;
+  }
+
+  restorePreviousShipLocation() {
+    // restores the position of the ship, if invalidly places it
+    const arrCoordinatesRaw = this.draggedShip.getAttribute('location');
+    const shipObjectRaw = this.draggedShip.getAttribute('shipobject');
+    const shipObject = JSON.parse(shipObjectRaw);
+    const arrCoordinates = JSON.parse(arrCoordinatesRaw);
+
+    for (let i = 0; i < arrCoordinates.length; i++) {
+      const currentArr = arrCoordinates[i];
+      const row = currentArr[0];
+      const col = currentArr[1];
+      this.gameboard.field[row][col] = shipObject;
+    }
+  }
+
+  saveInfoToShip(dropTarget, arrCoordinates, shipObject) {
+    // saves the starting point, mode, location, and copy of the ship to its attributes
+    const coordinates = this.getCoordinates(dropTarget);
+    this.draggedShip.setAttribute('startingPoint', coordinates);
+    this.draggedShip.setAttribute('mode', this.placementMode);
+
+    if (arrCoordinates.length !== 0) {
+      // save the current location to the ship
+      const convertedArrCoordinates = JSON.stringify(arrCoordinates);
+      this.draggedShip.setAttribute('location', convertedArrCoordinates);
+    }
+
+    const convertedShipObject = JSON.stringify(shipObject);
+    this.draggedShip.setAttribute('shipObject', convertedShipObject);
+  }
+
+  addEventListeners() {
+    // adds an event listener to each of the draggable ships
+    const arrDraggableShips = document.querySelectorAll('.ship');
+    arrDraggableShips.forEach((currentShip) => { // use forEach bc of possible closure issues
+      currentShip.addEventListener('dragstart', (event) => { // USE EVENT DELEGATION HERE!
+        this.draggedShip = event.target;
+        this.refreshGUI();
       });
-    }
-  }
+    });
 
-  addListenerToField() {
-    // gets the currently hovered over div
-    let cooldownActive = false;
-    const cooldownDuration = 200;
-
-    const handleChildClick = (event) => {
-      if (!cooldownActive) {
-        const clickedElement = event.target;
-        if (clickedElement.classList.contains('unselectable')) {
-          this.currentSelected = event.target;
-          console.log(this.currentSelected);
-
-          cooldownActive = true;
-          setTimeout(() => {
-            cooldownActive = false;
-          }, cooldownDuration);
-        }
+    // select the hovered over field
+    this.field.addEventListener('dragover', (event) => {
+      const hoveredOverElement = event.target;
+      if (!hoveredOverElement.classList.contains('unselectable')) {
+        return;
       }
-    };
 
-    const field = document.querySelector('.field1');
-    field.addEventListener('dragover', handleChildClick);
+      event.preventDefault(); // doesn't allow drop event otherwise
+      hoveredOverElement.style.backgroundColor = 'orange';
+    });
+
+    // remove the background color when not hovering over it anymore
+    this.field.addEventListener('dragleave', (event) => {
+      const hoveredOverElement = event.target;
+      if (hoveredOverElement.classList.contains('unselectable')) {
+        hoveredOverElement.style.backgroundColor = '';
+      }
+      this.refreshGUI();
+    });
+
+    // allow to drop the ship into a field
+    this.field.addEventListener('drop', (event) => {
+      const dropTarget = event.target;
+      if (!dropTarget.classList.contains('unselectable')) {
+        return;
+      }
+
+      const shipObject = this.createShipObject(dropTarget);
+
+      if (this.doesShipExist()) {
+        this.removeFromGameboard();
+      }
+
+      if (this.gameboard.placeShip(shipObject, shipObject.currentPosition, this.placementMode) === 'Success') {
+        dropTarget.appendChild(this.draggedShip);
+        const currentLocation = this.getCurrentShipLocation();
+        this.saveInfoToShip(dropTarget, currentLocation, shipObject);
+      }
+      else {
+        // restore previous location
+        this.restorePreviousShipLocation();
+      }
+
+      this.refreshGUI();
+
+      this.draggedShip = null;
+    });
   }
 
-  // BUTTONS
   enableButtons() {
     const randomButton = document.querySelector('.randomButton');
+
+    const questionMark = document.querySelector('.test');
+    const dropDown = document.querySelector('.content');
+
+    questionMark.addEventListener('mouseover', () => {
+      dropDown.style.display = 'block';
+    });
+
+    questionMark.addEventListener('mouseout', () => {
+      dropDown.style.display = 'none';
+    });
 
     const resetButton = document.querySelector('.resetButton');
     resetButton.addEventListener('click', () => {
