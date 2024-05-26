@@ -198,8 +198,9 @@ class ShipPlacement {
       }
 
       const shipObject = this.createShipObject(dropTarget);
+      const doesShipExist = this.doesShipExist();
 
-      if (this.doesShipExist()) {
+      if (doesShipExist) {
         this.removeFromGameboard();
       }
 
@@ -207,11 +208,10 @@ class ShipPlacement {
         dropTarget.appendChild(this.draggedShip);
         const currentLocation = this.getCurrentShipLocation();
         this.saveInfoToShip(dropTarget, currentLocation, shipObject);
-        console.log('Placement allowed');
       }
       else {
         // eslint-disable-next-line no-lonely-if
-        if (this.doesShipExist()) {
+        if (doesShipExist) {
           this.restorePreviousShipLocation();
         }
       }
@@ -251,7 +251,6 @@ class ShipPlacement {
         this.placementMode = 'horizontal';
         switchModeButton.textContent = 'Mode: Horizontal';
       }
-      console.log(this.gameboard.field);
     });
   }
 }
