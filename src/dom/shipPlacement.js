@@ -207,10 +207,13 @@ class ShipPlacement {
         dropTarget.appendChild(this.draggedShip);
         const currentLocation = this.getCurrentShipLocation();
         this.saveInfoToShip(dropTarget, currentLocation, shipObject);
+        console.log('Placement allowed');
       }
       else {
-        // restore previous location
-        this.restorePreviousShipLocation();
+        // eslint-disable-next-line no-lonely-if
+        if (this.doesShipExist()) {
+          this.restorePreviousShipLocation();
+        }
       }
 
       this.refreshGUI();
