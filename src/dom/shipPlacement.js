@@ -308,7 +308,84 @@ class ShipPlacement {
     this.draggedShip.setAttribute('shipObject', convertedShipObject);
   }
 
+  highlightShipPlacement(hoveredOverElement) {
+    // changes the color of the ship according to if it is allowed to be placed
+    if (!hoveredOverElement.classList.contains('unselectable')) {
+      return;
+    }
+
+    const shipStartingPoint = this.getCoordinates(hoveredOverElement);
+    const shipInProximity = this.scanSurroundings(shipStartingPoint);
+
+    const arrNextLocations = this.getNextFieldsGUI(hoveredOverElement);
+    const startingPoint = arrNextLocations[0];
+    const length = this.getShipLength();
+
+    const isPlacementAllowed = this.gameboard.placementAllowed(
+      { length },
+      startingPoint,
+      this.placementMode,
+    );
+
+    const isShipTheSame = this.areAllShipsTheSame(shipInProximity);
+
+    let color;
+    if (isPlacementAllowed === true || isShipTheSame) {
+      // changes color to green, if placement is allowed and ship is itself
+      color = 'green';
+    }
+    else {
+      color = 'red';
+    }
+
+    for (let i = 0; i < arrNextLocations.length; i++) {
+      const currentSubArray = arrNextLocations[i];
+      const row = currentSubArray[0];
+      const col = currentSubArray[1];
+
+      const selectorCoords = `[coords="${row},${col}"]`;
+      const selectedDivNodeList = this.field.querySelectorAll(selectorCoords);
+      const selectedDiv = selectedDivNodeList[0];
+
+      if (selectedDiv) {
+        selectedDiv.style.backgroundColor = color;
+      }
+    }
+  }
+
+  processShipPlacement(dropTarget) {
+    // controls placing the ships and removing them from the field
+    if (!dropTarget.classList.contains('unselectable')) {
+      return;
+    }
+
+    const shipObject = this.createShipObject(dropTarget);
+    const doesShipExist = this.doesShipExist();
+
+    if (doesShipExist) {
+      this.removeFromGameboard();
+    }
+
+    if (this.gameboard.placeShip(shipObject, shipObject.currentPosition, this.placementMode) === 'Success') {
+      dropTarget.appendChild(this.draggedShip);
+      const currentLocation = this.getCurrentShipLocation();
+      this.saveInfoToShip(dropTarget, currentLocation, shipObject);
+    }
+    else {
+      // eslint-disable-next-line no-lonely-if
+      if (doesShipExist) {
+        this.restorePreviousShipLocation();
+      }
+    }
+
+    this.refreshGUI();
+
+    this.draggedShip = null;
+  }
+
   addEventListeners() {
+    // controls the flow of ship placements by setting up event listeners for each drag type
+
     // adds an event listener to each of the draggable ships
     const arrDraggableShips = document.querySelectorAll('.ship');
     arrDraggableShips.forEach((currentShip) => { // use forEach bc of possible closure issues
@@ -320,49 +397,9 @@ class ShipPlacement {
 
     // select the hovered over field
     this.field.addEventListener('dragover', (event) => {
-      const hoveredOverElement = event.target;
-      if (!hoveredOverElement.classList.contains('unselectable')) {
-        return;
-      }
       event.preventDefault(); // doesn't allow drop event otherwise
-
-      const shipStartingPoint = this.getCoordinates(hoveredOverElement);
-      const shipInProximity = this.scanSurroundings(shipStartingPoint);
-
-      const arrNextLocations = this.getNextFieldsGUI(hoveredOverElement);
-      const startingPoint = arrNextLocations[0];
-      const length = this.getShipLength();
-
-      const isPlacementAllowed = this.gameboard.placementAllowed(
-        { length },
-        startingPoint,
-        this.placementMode,
-      );
-
-      const isShipTheSame = this.areAllShipsTheSame(shipInProximity);
-
-      let color;
-      if (isPlacementAllowed === true || isShipTheSame) {
-        // changes color to green, if placement is allowed and ship is itself
-        color = 'green';
-      }
-      else {
-        color = 'red';
-      }
-
-      for (let i = 0; i < arrNextLocations.length; i++) {
-        const currentSubArray = arrNextLocations[i];
-        const row = currentSubArray[0];
-        const col = currentSubArray[1];
-
-        const selectorCoords = `[coords="${row},${col}"]`;
-        const selectedDivNodeList = this.field.querySelectorAll(selectorCoords);
-        const selectedDiv = selectedDivNodeList[0];
-
-        if (selectedDiv) {
-          selectedDiv.style.backgroundColor = color;
-        }
-      }
+      const hoveredOverElement = event.target;
+      this.highlightShipPlacement(hoveredOverElement);
     });
 
     // remove the background color when not hovering over it anymore
@@ -373,32 +410,7 @@ class ShipPlacement {
     // allow to drop the ship into a field
     this.field.addEventListener('drop', (event) => {
       const dropTarget = event.target;
-      if (!dropTarget.classList.contains('unselectable')) {
-        return;
-      }
-
-      const shipObject = this.createShipObject(dropTarget);
-      const doesShipExist = this.doesShipExist();
-
-      if (doesShipExist) {
-        this.removeFromGameboard();
-      }
-
-      if (this.gameboard.placeShip(shipObject, shipObject.currentPosition, this.placementMode) === 'Success') {
-        dropTarget.appendChild(this.draggedShip);
-        const currentLocation = this.getCurrentShipLocation();
-        this.saveInfoToShip(dropTarget, currentLocation, shipObject);
-      }
-      else {
-        // eslint-disable-next-line no-lonely-if
-        if (doesShipExist) {
-          this.restorePreviousShipLocation();
-        }
-      }
-
-      this.refreshGUI();
-
-      this.draggedShip = null;
+      this.processShipPlacement(dropTarget);
     });
   }
 
@@ -431,6 +443,7 @@ class ShipPlacement {
         this.placementMode = 'horizontal';
         switchModeButton.textContent = 'Mode: Horizontal';
       }
+      console.log(this.gameboard.field);
     });
   }
 }
