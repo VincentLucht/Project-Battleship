@@ -58,6 +58,28 @@ class ShipPlacement {
     return [row, col];
   }
 
+  isShipOutOfBounds(startingPoint) {
+    const row = startingPoint[0];
+    const col = startingPoint[1];
+
+    if (this.placementMode === 'horizontal') {
+      for (let i = 0; i < this.getShipLength(); i++) {
+        if (this.gameboard.field[row][col + i] === undefined) {
+          return true;
+        }
+      }
+    }
+    else {
+      for (let i = 0; i < this.getShipLength(); i++) {
+        if (this.gameboard.field[row + i] === undefined) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   areAllShipsTheSame(arrAllShips) {
     // compares all the ship names of the surrounding ships to the current ship's name
     const shipName = this.getShipName();
@@ -327,14 +349,14 @@ class ShipPlacement {
       this.placementMode,
     );
 
-    const isShipTheSame = this.areAllShipsTheSame(shipInProximity);
-
     let color;
-    if (isPlacementAllowed === true || isShipTheSame) {
+    if (isPlacementAllowed === true) {
       // changes color to green, if placement is allowed and ship is itself
       color = 'green';
     }
-    else {
+    else if (this.areAllShipsTheSame(shipInProximity) && !this.isShipOutOfBounds(startingPoint)) {
+      color = 'green';
+    } else {
       color = 'red';
     }
 
@@ -443,7 +465,6 @@ class ShipPlacement {
         this.placementMode = 'horizontal';
         switchModeButton.textContent = 'Mode: Horizontal';
       }
-      console.log(this.gameboard.field);
     });
   }
 }
