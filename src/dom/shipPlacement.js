@@ -58,6 +58,175 @@ class ShipPlacement {
     return [row, col];
   }
 
+  scanShipParts(startingPoint) {
+    // checks if the ship is placed inside of a another ship, that is not itself
+    const row = startingPoint[0];
+    const col = startingPoint[1];
+    const length = this.getShipLength();
+    const arrAllShips = [];
+
+    if (this.placementMode === 'horizontal') {
+      for (let i = 0; i < length; i++) {
+        if (this.checkField(row, row + i)) {
+          const fieldContent = this.gameboard.field[row][col + i];
+          if (typeof (fieldContent) === 'object') {
+            arrAllShips.push(fieldContent);
+          }
+        }
+      }
+    }
+    else {
+      for (let i = 0; i < length; i++) {
+        if (this.checkField(row + i, col)) {
+          const fieldContent = this.gameboard.field[row + i][col];
+          if (typeof (fieldContent) === 'object') {
+            arrAllShips.push(fieldContent);
+          }
+        }
+      }
+    }
+
+    return arrAllShips;
+  }
+
+  compareShips(arrAllShips) {
+    const shipName = this.getShipName();
+
+    if (arrAllShips.length !== 0) {
+      for (let i = 0; i < arrAllShips.length; i++) {
+        if (shipName !== arrAllShips[i].name) {
+          console.log({ arrAllShips });
+          console.log({ shipName });
+          console.log(arrAllShips[i].name);
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  checkField(rowOffset, colOffset) {
+    return (
+      this.gameboard.field[rowOffset] &&
+      this.gameboard.field[rowOffset][colOffset] &&
+      typeof (this.gameboard.field[rowOffset][colOffset]) === 'object'
+    );
+  }
+
+  scanSurroundings(startingPoint) {
+    // gets the surrounding gameboard fields and checks whether its the same ship
+
+    const row = startingPoint[0];
+    const col = startingPoint[1];
+
+    const scanSurroundingsFirst = () => {
+      if (this.placementMode === 'horizontal') {
+        if (this.checkField(row - 1, col - 1)) {
+          return this.gameboard.field[row - 1][col - 1];
+        }
+
+        if (this.checkField(row, col - 1)) {
+          return this.gameboard.field[row][col - 1];
+        }
+
+        if (this.checkField(row + 1, col - 1)) {
+          return this.gameboard.field[row + 1][col - 1];
+        }
+      }
+      else {
+        if (this.checkField(row - 1, col - 1)) {
+          return this.gameboard.field[row - 1][col - 1];
+        }
+
+        if (this.checkField(row - 1, col)) {
+          return this.gameboard.field[row - 1][col];
+        }
+
+        if (this.checkField(row - 1, col + 1)) {
+          return this.gameboard.field[row - 1][col + 1];
+        }
+      }
+
+      return false;
+    };
+
+    const scanSurroundingsMiddle = () => {
+      if (this.placementMode === 'horizontal') {
+        for (let i = 0; i < this.getShipLength(); i++) {
+          if (this.checkField(row - 1, col + i)) {
+            return this.gameboard.field[row - 1][col + i];
+          }
+          if (this.checkField(row + 1, col + i)) {
+            return this.gameboard.field[row + 1][col + i];
+          }
+        }
+      }
+      else {
+        for (let i = 0; i < this.getShipLength(); i++) {
+          if (this.checkField(row + i, col - 1)) {
+            return this.gameboard.field[row + i][col - 1];
+          }
+          if (this.checkField(row + i, col + 1)) {
+            return this.gameboard.field[row + i][col + 1];
+          }
+        }
+      }
+      return false;
+    };
+
+    const scanSurroundingsLast = () => {
+      if (this.placementMode === 'horizontal') {
+        const endPoint = this.getShipLength() - 1;
+        const rowOffset = startingPoint[0];
+        const colOffset = startingPoint[1] + endPoint;
+
+        if (this.checkField(rowOffset - 1, colOffset + 1)) {
+          return this.gameboard.field[rowOffset - 1][colOffset + 1];
+        }
+
+        if (this.checkField(rowOffset, colOffset + 1)) {
+          return this.gameboard.field[rowOffset][colOffset + 1];
+        }
+
+        if (this.checkField(rowOffset + 1, colOffset + 1)) {
+          return this.gameboard.field[rowOffset + 1][colOffset + 1];
+        }
+      }
+      else {
+        const endPoint = this.getShipLength() - 1;
+        const rowOffset = startingPoint[0] + endPoint;
+        const colOffset = startingPoint[1];
+
+        if (this.checkField(rowOffset + 1, colOffset - 1)) {
+          return this.gameboard.field[rowOffset + 1][colOffset - 1];
+        }
+
+        if (this.checkField(rowOffset + 1, colOffset)) {
+          return this.gameboard.field[rowOffset + 1][colOffset];
+        }
+
+        if (this.checkField(rowOffset + 1, colOffset + 1)) {
+          return this.gameboard.field[rowOffset + 1][colOffset + 1];
+        }
+      }
+      return false;
+    };
+
+    const firstSurroundings = scanSurroundingsFirst();
+    if (firstSurroundings) {
+      return firstSurroundings;
+    }
+
+    const middleSurroundings = scanSurroundingsMiddle();
+    if (middleSurroundings) {
+      return middleSurroundings;
+    }
+
+    const lastSurroundings = scanSurroundingsLast();
+    return lastSurroundings || false;
+  }
+
   getNextFieldsGUI(hoveredOverElement) {
     const length = this.getShipLength();
     const startingPoint = this.getCoordinates(hoveredOverElement);
@@ -200,10 +369,48 @@ class ShipPlacement {
       if (!hoveredOverElement.classList.contains('unselectable')) {
         return;
       }
-
       event.preventDefault(); // doesn't allow drop event otherwise
 
+      const shipStartingPoint = this.getCoordinates(hoveredOverElement);
+      const shipInProximity = this.scanSurroundings(shipStartingPoint);
+      const shipName = this.getShipName();
+
       const arrNextLocations = this.getNextFieldsGUI(hoveredOverElement);
+      const startingPoint = arrNextLocations[0];
+      const length = this.getShipLength();
+
+      const isPlacementAllowed = this.gameboard.placementAllowed(
+        { length },
+        startingPoint,
+        this.placementMode,
+      );
+
+      const arrShipInWay = this.scanShipParts(shipStartingPoint);
+      const isShipTheSame = this.compareShips(arrShipInWay);
+
+      console.log({ arrShipInWay, isShipTheSame });
+
+      let color;
+      if (isPlacementAllowed === true) {
+        // change to green when placement is allowed
+        color = 'green';
+      }
+      else {
+        // change to red when names match
+        if (shipInProximity.name !== shipName) {
+          color = 'red';
+        }
+        else if (shipInProximity.name === shipName) {
+          if (!isShipTheSame) {
+            color = 'red';
+          }
+          else if (isShipTheSame) {
+            console.log({ shipInProximity });
+            color = 'green';
+          }
+        }
+      }
+
       for (let i = 0; i < arrNextLocations.length; i++) {
         const currentSubArray = arrNextLocations[i];
         const row = currentSubArray[0];
@@ -214,7 +421,7 @@ class ShipPlacement {
         const selectedDiv = selectedDivNodeList[0];
 
         if (selectedDiv) {
-          selectedDiv.style.backgroundColor = 'orange';
+          selectedDiv.style.backgroundColor = color;
         }
       }
     });
