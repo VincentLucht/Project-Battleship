@@ -58,6 +58,30 @@ class ShipPlacement {
     return [row, col];
   }
 
+  getNextFieldsGUI(hoveredOverElement) {
+    const length = this.getShipLength();
+    const startingPoint = this.getCoordinates(hoveredOverElement);
+
+    const arrNextFields = [];
+    for (let i = 0; i < length; i++) {
+      let row;
+      let col;
+      const subArray = [];
+
+      if (this.placementMode === 'horizontal') {
+        [row] = startingPoint;
+        col = startingPoint[1] + i;
+      }
+      else {
+        row = startingPoint[0] + i;
+        [, col] = startingPoint;
+      }
+      subArray.push(row, col);
+      arrNextFields.push(subArray);
+    }
+    return arrNextFields;
+  }
+
   createShipObject(dropTarget) {
     const name = this.getShipName();
     const length = this.getShipLength();
@@ -178,15 +202,25 @@ class ShipPlacement {
       }
 
       event.preventDefault(); // doesn't allow drop event otherwise
-      hoveredOverElement.style.backgroundColor = 'orange';
+
+      const arrNextLocations = this.getNextFieldsGUI(hoveredOverElement);
+      for (let i = 0; i < arrNextLocations.length; i++) {
+        const currentSubArray = arrNextLocations[i];
+        const row = currentSubArray[0];
+        const col = currentSubArray[1];
+
+        const selectorCoords = `[coords="${row},${col}"]`;
+        const selectedDivNodeList = this.field.querySelectorAll(selectorCoords);
+        const selectedDiv = selectedDivNodeList[0];
+
+        if (selectedDiv) {
+          selectedDiv.style.backgroundColor = 'orange';
+        }
+      }
     });
 
     // remove the background color when not hovering over it anymore
-    this.field.addEventListener('dragleave', (event) => {
-      const hoveredOverElement = event.target;
-      if (hoveredOverElement.classList.contains('unselectable')) {
-        hoveredOverElement.style.backgroundColor = '';
-      }
+    this.field.addEventListener('dragleave', () => {
       this.refreshGUI();
     });
 
