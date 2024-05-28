@@ -6,6 +6,7 @@
 :root {
   --min-size-ship-placer: 404px;
   --turquoise: rgb(96, 181, 209);
+  --button-color: #F0F0F0;
 }
 
 * {
@@ -32,7 +33,7 @@ body {
 }
 
 header {
-  font-size: 5.5vw;
+  font-size: clamp(90px, 5.5vw, 300px);
 
   display: flex;
   justify-content: center;
@@ -81,14 +82,10 @@ main {
   justify-content: center;
   align-items: center;
 
-  font-size: 3vw;
+  font-size: clamp(36px, 3vw, 60px);
 }
 .ship {
-  cursor: pointer; /* Default cursor for ships */
-}
-
-.ship.dragging {
-  cursor: grabbing !important; /* Change to grabbing cursor when dragging */
+  cursor: grab;
 }
 
 
@@ -101,7 +98,6 @@ main {
 }
 
 .field1, .field2 {
-  border: 2px solid #002B66;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-template-rows: repeat(10, 1fr);
@@ -109,8 +105,10 @@ main {
   width: 30vw;
   height: 30vw;
 
-  /* min-width: 400px;
-  min-height: 400px; */
+  aspect-ratio: 1/1;
+
+  min-width: 400px;
+  min-height: 400px;
 }
 
 .field1>div, .field2>div {
@@ -119,8 +117,12 @@ main {
   justify-content: center;
   align-items: center;
   background-color: #2489DA;
+  
+  aspect-ratio: 1/1;
   min-width: 36px;
   min-height: 36px;
+  outline: 2px solid #002B66;
+  box-sizing: border-box;
 } 
 .field2>div {
   cursor: crosshair;
@@ -210,7 +212,21 @@ a:visited {
 
 
 /* BUTTONS */
-.placementWrapper{
+.startGameWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.startGame {
+  width: clamp(100px, 10vw, 160px);
+  height: clamp(40px, 4vw, 60px);
+
+  cursor: pointer;
+
+  font-size: clamp(20px, 2vw, 30px);
+}
+
+.placementWrapper {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -221,6 +237,11 @@ a:visited {
 
   min-width: 404px;
   min-height: 404px;
+
+  -webkit-user-select: none;  /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* Internet Explorer/Edge */
+  user-select: none;   
 }
 
 .buttonLocation {
@@ -235,7 +256,7 @@ a:visited {
 }
 
 .buttonLocation>button {
-  font-size: 1.7vw;
+  font-size: clamp(20px, 2vw, 36px);
   cursor: pointer;
   white-space: nowrap; /* prevent text from line breaking */
 }
@@ -248,7 +269,7 @@ a:visited {
   width: 30vw;
   height: 2vw;
 
-  min-width: var(--min-size-ship-placer)
+  min-width: var(--min-size-ship-placer);
 }
 
 .icon {
@@ -273,7 +294,9 @@ a:visited {
 .content {
   display: none;
   position: absolute;
-  background-color: orange;
+  background-color: var(--button-color);
   min-width: 5vw;
-  box-shadow: 2px 2px 5px black;
+  color: black;
+  box-shadow: 0px 0px 10px 3px rgba(0, 0 ,0 , 0.8);
+  font-size: clamp(14px, 2vw, 28px);
 }
