@@ -14,22 +14,6 @@ class GUI {
     this.clickHandler = this.clickHandler.bind(this);
   }
 
-  placeDefaultShipsPlus(player) {
-    // places 5 ships at the default location
-    player.gameboard.placeShip(new Ship(5), [0, 0]);
-    player.gameboard.placeShip(new Ship(5), [2, 2]);
-    player.gameboard.placeShip(new Ship(5), [2, 0], 'vertical');
-    player.gameboard.placeShip(new Ship(5), [5, 3], 'vertical');
-    player.gameboard.placeShip(new Ship(5), [5, 5]);
-    player.gameboard.placeShip(new Ship(5), [7, 5]);
-    player.gameboard.placeShip(new Ship(5), [9, 5]);
-
-    player.gameboard.placeShip(new Ship(4), [5, 4], 'vertical');
-    player.gameboard.placeShip(new Ship(3), [0, 9], 'vertical');
-    player.gameboard.placeShip(new Ship(2), [3, 4]);
-    player.gameboard.placeShip(new Ship(2), [9, 0]);
-  }
-
   placeDefaultShips(player) {
     // places 5 ships at the default location
     player.gameboard.placeShip(new Ship(5), [0, 0]);
@@ -37,6 +21,10 @@ class GUI {
     player.gameboard.placeShip(new Ship(3), [0, 9], 'vertical');
     player.gameboard.placeShip(new Ship(2), [3, 4]);
     player.gameboard.placeShip(new Ship(2), [9, 0]);
+  }
+
+  placeRandomShips(player) {
+    const arrAllShips = [new Ship(5), new Ship(4), new Ship(3), new Ship(3), new Ship(2)];
   }
 
   /* eslint-disable no-param-reassign */
@@ -226,17 +214,24 @@ class GUI {
     }
   }
 
-  displayField() {
-    // create the field
+  displayFieldPlayer1() {
     this.createField(this.player1, this.field1, 'show');
+  }
+
+  createPlayer2Field() {
+    const parentDiv = document.querySelector('.fieldWrapper');
+    const newField = document.createElement('div');
+    newField.classList = 'field2';
+    parentDiv.appendChild(newField);
+  }
+
+  displayFieldPlayer2() {
     this.createField(this.player2, this.field2, 'hidden');
+  }
 
-    // show that its player1's turn
+  startGame() {
     this.changeOpacity();
-
-    if (this.player1Turn === true) {
-      this.field2.addEventListener('click', this.clickHandler); // add an event listener to each square of the parent div
-    }
+    this.field2.addEventListener('click', this.clickHandler);
   }
 
   clickHandler(event) {
@@ -635,6 +630,12 @@ class GUI {
       this.field2.classList.remove('atTurn');
       this.field2.classList.add('notAtTurn');
     }
+  }
+
+  focusOnPlayerField() {
+    // make player 1 field brighter
+    this.field1.classList.remove('notAtTurn');
+    this.field1.classList.add('atTurn');
   }
 }
 

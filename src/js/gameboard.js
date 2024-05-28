@@ -15,10 +15,6 @@ class Gameboard {
   }
 
   determineMode(startingPoint) {
-
-    // USE RECURSION HERE??? 
-    // Dont forget it!!!!
-
     // checks the mode of the ship that is in the coordinates
     const row = startingPoint[0];
     const col = startingPoint[1];
@@ -398,7 +394,7 @@ class Gameboard {
         ) {
           return 'Not allowed, left side found';
         }
-        // righ
+        // right
         if (
           this.field[row + i] &&
           this.field[row + i][col + 1] &&

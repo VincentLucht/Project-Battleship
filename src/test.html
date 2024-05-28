@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stretch Image over Multiple Divs</title>
+    <style>
+        .container {
+            position: relative;
+            width: 100%;
+            height: 300px; /* Adjust the height as needed */
+            display: flex;
+        }
+        .container > div {
+            flex: 1;
+            border: 1px solid black;
+        }
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover; /* Adjust this based on how you want the image to behave */
+            background-position: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>Div 1</div>
+        <div>Div 2</div>
+        <div>Div 3</div>
+    </div>
+    <script>
+        const container = document.querySelector('.container');
+        const imgUrl = 'https://www.shutterstock.com/image-vector/marine-captain-cap-sign-sailor-260nw-2037532772.jpg'; // Replace with your image URL
+
+        const imgDiv = document.createElement('div');
+        imgDiv.className = 'background-image';
+        imgDiv.style.backgroundImage = `url(${imgUrl})`;
+
+        container.appendChild(imgDiv);
+    </script>
+</body>
+</html>

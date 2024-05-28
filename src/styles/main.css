@@ -60,8 +60,12 @@ main {
   place-content: center;
 
   border: 2px solid white;
-  width: 200px;
-  height: 50px;
+  width: 14vw;
+  height: 5vw;
+  max-width: 380px;
+  max-height: 100px;
+
+  font-size: clamp(14px, 2vw, 50px);
 }
 
 /* ship placer */
@@ -86,8 +90,12 @@ main {
 }
 .ship {
   cursor: grab;
+  overflow: visible;
 }
 
+div {
+  overflow: visible;
+}
 
 /* fields */
 .fieldWrapper {
@@ -105,14 +113,16 @@ main {
   width: 30vw;
   height: 30vw;
 
-  aspect-ratio: 1/1;
 
   min-width: 400px;
   min-height: 400px;
 }
 
 .field1>div, .field2>div {
-  border: 2px solid #002B66;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #002B66;
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -121,9 +131,24 @@ main {
   aspect-ratio: 1/1;
   min-width: 36px;
   min-height: 36px;
-  outline: 2px solid #002B66;
-  box-sizing: border-box;
 } 
+.field1>div>div, .field2>div>div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+@media (min-width: 1400px) {
+  .field1>div, .field2>div {
+    border-width: 3px 2px;
+  }
+}
+@media (min-width: 2000px) {
+  .field1>div, .field2>div {
+    border-width: 4px 2px;
+  }
+}
+
 .field2>div {
   cursor: crosshair;
 }
@@ -191,7 +216,7 @@ a:visited {
   }
   50% {
     color: rgb(7, 166, 7);
-    border-color: rgb(7, 166, 7);; 
+    border-color: rgb(7, 166, 7);
   }
   100% {
     color: white;
@@ -220,10 +245,13 @@ a:visited {
 .startGame {
   width: clamp(100px, 10vw, 160px);
   height: clamp(40px, 4vw, 60px);
+  font-size: clamp(20px, 2vw, 30px);
 
   cursor: pointer;
 
-  font-size: clamp(20px, 2vw, 30px);
+  border: 3px solid red;
+  color: red;
+  background-color: var(--button-color);
 }
 
 .placementWrapper {
@@ -256,9 +284,11 @@ a:visited {
 }
 
 .buttonLocation>button {
-  font-size: clamp(20px, 2vw, 36px);
+  font-size: clamp(20px, 1.5vw, 60px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
-  white-space: nowrap; /* prevent text from line breaking */
 }
 
 

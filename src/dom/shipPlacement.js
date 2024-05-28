@@ -1,9 +1,88 @@
+const Gameboard = require('../js/gameboard');
+const Ship = require('../js/ship');
+
 class ShipPlacement {
   constructor(gameboard, field) {
     this.gameboard = gameboard;
     this.field = field;
     this.placementMode = 'horizontal';
     this.draggedShip = null;
+    this.canStartGame = false;
+  }
+
+  convertGameboard() {
+    // converts the gameboard to use the actual ship class instead of the "fake ship" object
+    const newGameboard = new Gameboard();
+    const allShips = document.querySelectorAll('div[name]');
+    for (let i = 0; i < allShips.length; i++) {
+      const currentShip = allShips[i];
+      const shipObject = JSON.parse(currentShip.getAttribute('shipobject'));
+      const { length } = shipObject;
+      const location = shipObject.currentPosition;
+      const { mode } = shipObject;
+
+      newGameboard.placeShip(new Ship(length), location, mode);
+    }
+    return newGameboard;
+  }
+
+  areAllShipsPlaced() {
+    let amountOfShips = 0;
+    const requiredAmount = 17;
+
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        if (typeof (this.gameboard.field[i][j]) === 'object') {
+          amountOfShips += 1;
+        }
+      }
+    }
+
+    if (amountOfShips === requiredAmount) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  removeStartButton() {
+    // remove the startGame button
+    const startButton = document.querySelector('.startGame');
+    startButton.remove();
+  }
+
+  removeFieldWrapper() {
+    // remove everything from fieldWrapper
+    const fieldWrapper = document.querySelector('.fieldWrapper');
+    while (fieldWrapper.firstChild) {
+      fieldWrapper.removeChild(fieldWrapper.firstChild);
+    }
+  }
+
+  createNewFields() {
+    const fieldWrapper = document.querySelector('.fieldWrapper');
+    const field1 = document.createElement('div');
+    const field2 = document.createElement('div');
+
+    field1.classList.add('field1');
+    field2.classList.add('field2');
+
+    fieldWrapper.appendChild(field1);
+    fieldWrapper.appendChild(field2);
+  }
+
+  startGame() {
+    const startGameButton = document.querySelector('.startGame');
+    if (this.areAllShipsPlaced()) {
+      this.canStartGame = true;
+      startGameButton.style.border = '3px solid rgb(7, 166, 7)';
+      startGameButton.style.color = 'rgb(7, 166, 7)';
+    }
+    else {
+      startGameButton.style.border = '3px solid red';
+      startGameButton.style.color = 'red';
+    }
   }
 
   refreshGUI() {
@@ -441,6 +520,7 @@ class ShipPlacement {
     this.field.addEventListener('drop', (event) => {
       const dropTarget = event.target;
       this.processShipPlacement(dropTarget);
+      this.startGame();
     });
   }
 
@@ -476,7 +556,7 @@ class ShipPlacement {
         this.placementMode = 'horizontal';
         switchModeButton.textContent = 'Mode: Horizontal';
       }
-      console.log(this.gameboard.field);
+      this.convertGameboard();
     });
   }
 
@@ -536,6 +616,7 @@ class ShipPlacement {
         }
       }
     }
+    this.startGame();
   }
 }
 

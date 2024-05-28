@@ -4,17 +4,80 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Template</title>
-<script defer src="bundle811abdadb851a5d8b42f.js"></script></head>
+<script defer src="bundle1593d37be327bef8f3bf.js"></script></head>
 <body>
   <header>Battleship</header>
   <main>
     <div class="turnBoardWrapper">
-      <div class="turnBoard color-change-green">Your turn!</div>
+      <div class="turnBoard color-change-green">Place your ships!</div>
+      <div class="startGameWrapper">
+        <button class="startGame">Start game</button>
+      </div>
     </div>
 
     <div class="fieldWrapper">
-      <div class="field1"></div>
-      <div class="field2"></div>
+      <!-- PLACEMENT WRAPPER -->
+      <div class="placementWrapper">
+        <div class="questionMark">
+          <div></div>
+          <div></div>
+          <div class="dropdown">
+            <div class="icon">
+              <div class="test">?</div>
+            </div>
+
+            <div class="content">
+              <p>
+                To change the rotation of an already placed ship, 
+                change the current mode and replace the ship.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="buttonLocation">
+          <button class="randomButton">Random</button>
+          <button class="resetButton">Reset</button>
+          <button class="switchModeButton">Mode: <span class="currentMode">Horizontal</span></button>
+        </div>
+
+        <div class="placeShips">
+          <div>
+            <div class="ship" draggable="true" length="5" name="aircraftCarrier">Aircraft Carrier</div>
+          </div>
+          <div>
+            <div class="ship" draggable="true" length="4" name="battleship">Battleship</div>
+          </div>
+          <div>
+            <div class="ship" draggable="true" length="3" name="cruiser">Cruiser</div>
+          </div>
+          <div>
+            <div class="ship" draggable="true" length="3" name="submarine">Submarine</div>
+          </div>
+          <div>
+            <div class="ship" draggable="true" length="2" name="destroyer">Destroyer</div>
+          </div>
+        </div>
+      </div>
+        
+      <!-- FIELD 1 Wrapper -->
+      <div class="field1Wrapper">
+        <div class="placementWrapper">
+          <div class="questionMark">
+            <div></div>
+            <div></div>
+            <div class="dropdown">
+              <div class="icon">
+                <div></div>
+              </div>
+  
+              <div class="content">
+
+              </div>
+            </div>
+          </div>
+        <div class="field1"></div>
+      </div>
     </div>
   </main>
   <footer>
