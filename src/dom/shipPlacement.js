@@ -266,9 +266,17 @@ class ShipPlacement {
     }
   }
 
-  getCurrentShipLocation() {
+  resetGameboard() {
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        this.gameboard.field[i][j] = '';
+      }
+    }
+  }
+
+  getCurrentShipLocation(name = this.getShipName()) {
     // returns the location of the current ship
-    const shipName = this.getShipName();
+    const shipName = name;
     const arrCoordinates = [];
     for (let i = 0; i < 10; i++) {
       for (let j = 0; j < 10; j++) {
@@ -438,14 +446,17 @@ class ShipPlacement {
 
   enableButtons() {
     const randomButton = document.querySelector('.randomButton');
+    randomButton.addEventListener('click', () => {
+      this.resetGameboard();
+      this.placeRandomShips();
+      this.refreshGUI();
+    });
 
     const questionMark = document.querySelector('.test');
     const dropDown = document.querySelector('.content');
-
     questionMark.addEventListener('mouseover', () => {
       dropDown.style.display = 'block';
     });
-
     questionMark.addEventListener('mouseout', () => {
       dropDown.style.display = 'none';
     });
@@ -465,7 +476,66 @@ class ShipPlacement {
         this.placementMode = 'horizontal';
         switchModeButton.textContent = 'Mode: Horizontal';
       }
+      console.log(this.gameboard.field);
     });
+  }
+
+  resetButton() {
+
+  }
+
+  placeRandomShips() {
+    // places all the ships on random spots on both gameboards, simulating a drag and drop
+    const switchModeButton = document.querySelector('.switchModeButton');
+    const arrAllShip = document.querySelectorAll('.ship');
+
+    for (let i = 0; i < arrAllShip.length; i++) {
+      let hasPlaced = false;
+
+      while (!hasPlaced) {
+        const currentShip = arrAllShip[i];
+
+        // select a random mode
+        const mode = Math.floor(Math.random() * 2) + 1;
+        if (mode === 1) {
+          this.placementMode = 'horizontal';
+          switchModeButton.textContent = 'Mode: Horizontal';
+        }
+        else {
+          this.placementMode = 'vertical';
+          switchModeButton.textContent = 'Mode: Vertical';
+        }
+
+        const row = Math.floor(Math.random() * 10);
+        const col = Math.floor(Math.random() * 10);
+
+        // create ship object
+        const ship = {
+          name: currentShip.getAttribute('name'),
+          length: parseInt(currentShip.getAttribute('length'), 10),
+          currentPosition: [row, col],
+          mode: this.placementMode,
+        };
+
+        if (this.gameboard.placementAllowed(ship, [row, col], this.placementMode) === true) {
+          hasPlaced = true;
+          this.gameboard.placeShip(ship, [row, col], this.placementMode);
+
+          // simulate dragging and dropping the ship
+          currentShip.setAttribute('startingpoint', `${row},${col}`);
+          currentShip.setAttribute('mode', this.placementMode);
+          const shipName = currentShip.getAttribute('name');
+
+          const currentLocation = JSON.stringify(this.getCurrentShipLocation(shipName));
+          currentShip.setAttribute('location', currentLocation);
+          const shipObject = JSON.stringify(ship);
+          currentShip.setAttribute('shipObject', shipObject);
+
+          const placementField = document.querySelector(`[coords="${row},${col}"]`);
+          placementField.appendChild(currentShip);
+        }
+      }
+    }
   }
 }
 
