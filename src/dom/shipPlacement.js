@@ -26,9 +26,20 @@ class ShipPlacement {
     return newGameboard;
   }
 
+  getAllShipsInfo() {
+    const allShips = document.querySelectorAll('div[name]');
+    const arrAllShipObjects = [];
+    for (let i = 0; i < allShips.length; i++) {
+      const currentShip = allShips[i];
+      const shipObject = JSON.parse(currentShip.getAttribute('shipobject'));
+      arrAllShipObjects.push(shipObject);
+    }
+    return arrAllShipObjects;
+  }
+
   areAllShipsPlaced() {
     let amountOfShips = 0;
-    const requiredAmount = 17;
+    const requiredAmount = 23;
 
     for (let i = 0; i < 10; i++) {
       for (let j = 0; j < 10; j++) {
@@ -556,7 +567,6 @@ class ShipPlacement {
         this.placementMode = 'horizontal';
         switchModeButton.textContent = 'Mode: Horizontal';
       }
-      this.convertGameboard();
     });
   }
 

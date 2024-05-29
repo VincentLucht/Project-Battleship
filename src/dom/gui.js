@@ -23,8 +23,10 @@ class GUI {
     player.gameboard.placeShip(new Ship(2), [9, 0]);
   }
 
-  placeRandomShips(player) {
-    const arrAllShips = [new Ship(5), new Ship(4), new Ship(3), new Ship(3), new Ship(2)];
+  placeRandomShipsAI(player) {
+    const arrAllShips = [
+      new Ship(5), new Ship(4), new Ship(4), new Ship(3),
+      new Ship(3), new Ship(2), new Ship(2)];
   }
 
   /* eslint-disable no-param-reassign */
@@ -163,6 +165,46 @@ class GUI {
     this.refreshSurroundingsFirst(row, col, parentDiv, gameboard, mode);
     this.refreshSurroundingsMiddle(row, col, parentDiv, gameboard, ship, mode);
     this.refreshSurroundingsLast([row, col], parentDiv, gameboard, ship, mode);
+  }
+
+  addShipImages(arrAllShipObjects) {
+    // adds the ship png's to the field
+    for (let i = 0; i < arrAllShipObjects.length; i++) {
+      const {
+        currentPosition, mode, length, name,
+      } = arrAllShipObjects[i];
+
+      const [row, col] = currentPosition;
+
+      for (let j = 0; j < length; j++) {
+        let currentRow = row;
+        let currentCol = col;
+
+        if (mode === 'horizontal') {
+          currentCol += j;
+        }
+        else if (mode === 'vertical') {
+          currentRow += j;
+        }
+
+        const selectedDiv = document.querySelector(`[coords="${currentRow},${currentCol}"]`);
+        selectedDiv.classList.add(`${name}`);
+        selectedDiv.style.backgroundImage = `url(../../src/img/${name}/${j}.png)`;
+        selectedDiv.style.backgroundSize = 'cover';
+        selectedDiv.style.backgroundPosition = 'center';
+        selectedDiv.style.backgroundRepeat = 'no-repeat';
+
+        if (mode === 'vertical') {
+          selectedDiv.style.transform = 'rotate(90deg)';
+        }
+        if (name === 'cruiser' || name === 'destroyer' || name === 'falcon') {
+          selectedDiv.style.backgroundSize = '99%'; // to large otherwise, 1% apparently
+        }
+        if (name === 'submarine') {
+          selectedDiv.style.backgroundSize = '98%';
+        }
+      }
+    }
   }
 
   createField(player, field, mode) {

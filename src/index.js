@@ -29,7 +29,11 @@ shipPlacer.addEventListeners();
 const startGameButton = document.querySelector('.startGame');
 startGameButton.addEventListener('click', () => {
   if (shipPlacer.canStartGame) {
+    // save info before deletion
     player1.gameboard = shipPlacer.convertGameboard();
+    const arrAllShipObjects = shipPlacer.getAllShipsInfo();
+
+    // remove everything from DOM
     shipPlacer.removeStartButton();
     shipPlacer.removeFieldWrapper();
     shipPlacer.createNewFields();
@@ -41,5 +45,7 @@ startGameButton.addEventListener('click', () => {
     gui.displayFieldPlayer2();
     gui.startGame();
     gui.displayBoardMessage('Attack!');
+
+    gui.addShipImages(arrAllShipObjects);
   }
 });
