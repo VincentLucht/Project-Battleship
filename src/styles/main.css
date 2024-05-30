@@ -60,11 +60,8 @@ main {
   place-content: center;
 
   border: 2px solid white;
-  width: 14vw;
-  height: 5vw;
-  max-width: 380px;
-  max-height: 100px;
-
+  width: clamp(100px, 25vw, 600px);
+  height: clamp(75px, 5vw, 150px);
   font-size: clamp(14px, 2vw, 50px);
 }
 
@@ -149,12 +146,9 @@ div {
   }
 }
 
-.field2>div {
-  cursor: crosshair;
-}
-
-.field2>div:hover {
+.hover:hover {
   background-color: purple;
+  cursor: crosshair;
 }
 
 .atTurn {

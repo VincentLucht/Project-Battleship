@@ -9,9 +9,38 @@ class GUI {
     this.turnBoard = turnBoard;
     this.player1Turn = true;
     this.player2Turn = false;
-    this.gameOver = false;
     // using 'this' does not work without binding here, it will return undefined otherwise
     this.clickHandler = this.clickHandler.bind(this);
+  }
+
+  isGameOver(gameboard, offset = true) {
+    let amountOfShips = 0;
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        const currentField = gameboard.field[i][j];
+        if (typeof (currentField) === 'object') {
+          amountOfShips += 1;
+        }
+      }
+    }
+
+    if (offset) {
+      if (amountOfShips === 1) {
+        return true;
+      }
+    } else if (amountOfShips === 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  removeHoverEffect() {
+    const allDivs = this.field2.querySelectorAll('div');
+    for (let i = 0; i < allDivs.length; i++) {
+      const div = allDivs[i];
+      div.classList.remove('hover');
+    }
   }
 
   placeDefaultShips(player) {
@@ -23,10 +52,34 @@ class GUI {
     player.gameboard.placeShip(new Ship(2), [9, 0]);
   }
 
-  placeRandomShipsAI(player) {
-    const arrAllShips = [
-      new Ship(5), new Ship(4), new Ship(4), new Ship(3),
-      new Ship(3), new Ship(2), new Ship(2)];
+  placeRandomShipsAI() {
+    // const allShipLength = [5, 4, 4, 3, 3, 2, 2];
+    const allShipLength = [2, 2];
+
+    for (let i = 0; i < allShipLength.length; i++) {
+      let hasPlaced = false;
+
+      while (!hasPlaced) {
+        const length = allShipLength[i];
+
+        const random1To2 = Math.floor(Math.random() * 2) + 1;
+        let mode;
+        if (random1To2 === 1) {
+          mode = 'horizontal';
+        }
+        else {
+          mode = 'vertical';
+        }
+
+        const row = Math.floor(Math.random() * 10);
+        const col = Math.floor(Math.random() * 10);
+
+        if (this.player2.gameboard.placementAllowed(new Ship(length), [row, col], mode) === true) {
+          this.player2.gameboard.placeShip(new Ship(length), [row, col], mode);
+          hasPlaced = true;
+        }
+      }
+    }
   }
 
   /* eslint-disable no-param-reassign */
@@ -197,17 +250,17 @@ class GUI {
         if (mode === 'vertical') {
           selectedDiv.style.transform = 'rotate(90deg)';
         }
-        if (name === 'cruiser' || name === 'destroyer' || name === 'falcon') {
-          selectedDiv.style.backgroundSize = '99%'; // to large otherwise, 1% apparently
-        }
-        if (name === 'submarine') {
+        if (name === 'aircraftcarrier') {
           selectedDiv.style.backgroundSize = '98%';
+        }
+        if (name === 'cruiser' || name === 'destroyer' || name === 'falcon' || name === 'submarine') {
+          selectedDiv.style.backgroundSize = '99%'; // to large otherwise, 1% apparently
         }
       }
     }
   }
 
-  createField(player, field, mode) {
+  createField(player, field, mode, addHover = false) {
     // creates the 10x10 square gameboard
 
     if (mode === 'show') {
@@ -244,6 +297,9 @@ class GUI {
 
           div.setAttribute('coords', `${i},${j}`);
           div.classList.add('unselectable');
+          if (addHover) {
+            div.classList.add('hover');
+          }
           field.appendChild(div);
         }
       }
@@ -257,7 +313,7 @@ class GUI {
   }
 
   displayFieldPlayer1() {
-    this.createField(this.player1, this.field1, 'show');
+    this.createField(this.player1, this.field1, 'hidden');
   }
 
   createPlayer2Field() {
@@ -268,7 +324,7 @@ class GUI {
   }
 
   displayFieldPlayer2() {
-    this.createField(this.player2, this.field2, 'hidden');
+    this.createField(this.player2, this.field2, 'hidden', true);
   }
 
   startGame() {
@@ -277,6 +333,14 @@ class GUI {
   }
 
   clickHandler(event) {
+    const endGame = () => {
+      this.player1Turn = false;
+      this.field2.removeEventListener('click', this.clickHandler);
+
+      this.disableOpacity();
+      this.displayBoardMessage('Player 1 Won! Congratulations');
+    };
+
     const clickedElement = event.target;
 
     // if it is player1's turn, then add an event listener, remove player2's event listener
@@ -292,7 +356,7 @@ class GUI {
         const mode = this.player2.gameboard.determineMode([row, col]);
         const startingPoint = this.player2.gameboard.determineStartingPoint([row, col]);
 
-        let shipSunk = false; // can be removed
+        let shipSunk = false;
 
         // check if the ship sank
         const fieldContent = this.player2.gameboard.field[row][col];
@@ -303,6 +367,11 @@ class GUI {
             this.refreshSurroundings(startingPoint, this.field2, this.player2.gameboard, fieldContent, mode);
             this.hitField(clickedElement);
             shipSunk = true;
+
+            if (this.isGameOver(this.player2.gameboard)) {
+              endGame();
+              this.removeHoverEffect();
+            }
           }
         }
 
@@ -338,6 +407,12 @@ class GUI {
 
   aiTurn() {
     // Attacks a random field, until it hits one - recursively(!!!) hunts the ship down
+    const endGame = () => {
+      this.player2Turn = false;
+      this.disableOpacity();
+      this.displayBoardMessage('You lost to the AI!');
+    };
+
     const changeTurn = () => {
       this.player2Turn = false;
       this.player1Turn = true;
@@ -355,6 +430,11 @@ class GUI {
       }
       this.player1.gameboard.receiveAttack([newRow, newCol]);
       this.player2.removeFromAvailableMoves([newRow, newCol]);
+
+      if (this.isGameOver(this.player1.gameboard, false)) {
+        endGame();
+        this.removeHoverEffect();
+      }
     };
 
     const didShipSink = (row, col, fieldContent, selectedDiv) => {
@@ -371,6 +451,10 @@ class GUI {
         return false;
       }
     };
+
+    if (!this.player2Turn) {
+      return;
+    }
 
     const TIMEOUTAMOUNT = 1;
 
@@ -587,6 +671,7 @@ class GUI {
 
       // AI exhausts all its moves, game over
       if (attackCoordinates === 'No more possible moves') {
+        endGame();
         console.log('Game ended');
         return;
       }
@@ -672,6 +757,14 @@ class GUI {
       this.field2.classList.remove('atTurn');
       this.field2.classList.add('notAtTurn');
     }
+  }
+
+  disableOpacity() {
+    // disables the opacity, signaling that the game is over
+    this.field1.classList.remove('atTurn');
+    this.field1.classList.add('notAtTurn');
+    this.field2.classList.remove('atTurn');
+    this.field2.classList.add('notAtTurn');
   }
 
   focusOnPlayerField() {

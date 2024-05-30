@@ -196,7 +196,6 @@ class ShipPlacement {
 
   scanSurroundings(startingPoint) {
     // gets the surrounding gameboard fields and collects all ships in the proximity
-
     const row = startingPoint[0];
     const col = startingPoint[1];
     const shipsInProximity = [];
@@ -566,6 +565,13 @@ class ShipPlacement {
       else {
         this.placementMode = 'horizontal';
         switchModeButton.textContent = 'Mode: Horizontal';
+      }
+    });
+
+    // switch mode when pressing r
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'r' || event.key === 'R') {
+        switchModeButton.click();
       }
     });
   }

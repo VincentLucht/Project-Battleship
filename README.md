@@ -22,6 +22,11 @@ CSS:
 - [x] fix scaling of fields on smaller screen
 - [x] correct the style of the info field (above the mode button)
 - [ ] add nice hover stylings for the buttons in ship placement
+- [ ] add proper hit texture, explosion? "💥" emoji?
+IMAGES:
+- [x] add images for each ship
+- [ ] flip the falcon
+- [ ] add another submarine model, with going over water a bit
 OTHER:
 - [ ] update eslint rule-set to template repo!
 

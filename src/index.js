@@ -45,7 +45,8 @@ startGameButton.addEventListener('click', () => {
     gui.displayFieldPlayer2();
     gui.startGame();
     gui.displayBoardMessage('Attack!');
-
+    gui.placeRandomShipsAI();
     gui.addShipImages(arrAllShipObjects);
+    console.log(player2.gameboard.field);
   }
 });
