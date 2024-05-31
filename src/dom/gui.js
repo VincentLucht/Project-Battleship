@@ -43,18 +43,8 @@ class GUI {
     }
   }
 
-  placeDefaultShips(player) {
-    // places 5 ships at the default location
-    player.gameboard.placeShip(new Ship(5), [0, 0]);
-    player.gameboard.placeShip(new Ship(4), [5, 4], 'vertical');
-    player.gameboard.placeShip(new Ship(3), [0, 9], 'vertical');
-    player.gameboard.placeShip(new Ship(2), [3, 4]);
-    player.gameboard.placeShip(new Ship(2), [9, 0]);
-  }
-
   placeRandomShipsAI() {
-    // const allShipLength = [5, 4, 4, 3, 3, 2, 2];
-    const allShipLength = [2, 2];
+    const allShipLength = [5, 4, 4, 3, 3, 2, 2];
 
     for (let i = 0; i < allShipLength.length; i++) {
       let hasPlaced = false;
@@ -113,21 +103,15 @@ class GUI {
     };
 
     if (mode === 'horizontal') {
-      // left upper left
-      revealFieldFirst(row - 1, col - 1);
-      // left middle left
-      revealFieldFirst(row, col - 1);
-      // left bottom left
-      revealFieldFirst(row + 1, col - 1);
+      revealFieldFirst(row - 1, col - 1); // left upper left
+      revealFieldFirst(row, col - 1); // left middle left
+      revealFieldFirst(row + 1, col - 1); // left bottom left
     }
 
     else if (mode === 'vertical') {
-      // upper left
-      revealFieldFirst(row - 1, col - 1);
-      // upper middle
-      revealFieldFirst(row - 1, col);
-      // upper right
-      revealFieldFirst(row - 1, col + 1);
+      revealFieldFirst(row - 1, col - 1); // upper left
+      revealFieldFirst(row - 1, col); // upper left
+      revealFieldFirst(row - 1, col + 1); // upper left
     }
   }
 
@@ -150,19 +134,15 @@ class GUI {
 
     if (mode === 'horizontal') {
       for (let i = 0; i < ship.length; i++) {
-        // upper
-        revealFieldMiddle(row - 1, col + i);
-        // lower
-        revealFieldMiddle(row + 1, col + i);
+        revealFieldMiddle(row - 1, col + i); // upper
+        revealFieldMiddle(row + 1, col + i); // lower
       }
     }
 
     else if (mode === 'vertical') {
       for (let i = 0; i < ship.length; i++) {
-        // left
-        revealFieldMiddle(row + i, col - 1);
-        // right
-        revealFieldMiddle(row + i, col + 1);
+        revealFieldMiddle(row + i, col - 1); // left
+        revealFieldMiddle(row + i, col + 1); // right
       }
     }
   }
@@ -184,30 +164,22 @@ class GUI {
       }
     };
 
+    const endPoint = ship.length - 1;
     if (mode === 'horizontal') {
-      const endPoint = ship.length - 1;
       const row = coordinates[0];
       const col = coordinates[1] + endPoint;
 
-      // right upper right
-      revealFieldLast(row - 1, col + 1);
-      // right middle right
-      revealFieldLast(row, col + 1);
-      // right bottom right
-      revealFieldLast(row + 1, col + 1);
+      revealFieldLast(row - 1, col + 1); // right upper right
+      revealFieldLast(row, col + 1); // right middle right
+      revealFieldLast(row + 1, col + 1); // right bottom right
     }
-
     else if (mode === 'vertical') {
-      const endPoint = ship.length - 1;
       const row = coordinates[0] + endPoint;
       const col = coordinates[1];
 
-      // bottom left
-      revealFieldLast(row + 1, col - 1);
-      // bottom middle
-      revealFieldLast(row + 1, col);
-      // bottom right
-      revealFieldLast(row + 1, col + 1);
+      revealFieldLast(row + 1, col - 1); // bottom left
+      revealFieldLast(row + 1, col); // bottom middle
+      revealFieldLast(row + 1, col + 1); // bottom right
     }
   }
 
@@ -254,7 +226,7 @@ class GUI {
           selectedDiv.style.backgroundSize = '98%';
         }
         if (name === 'cruiser' || name === 'destroyer' || name === 'falcon' || name === 'submarine') {
-          selectedDiv.style.backgroundSize = '99%'; // to large otherwise, 1% apparently
+          selectedDiv.style.backgroundSize = '99%';
         }
       }
     }
@@ -262,35 +234,7 @@ class GUI {
 
   createField(player, field, mode, addHover = false) {
     // creates the 10x10 square gameboard
-
-    if (mode === 'show') {
-      for (let i = 0; i < 10; i++) {
-        for (let j = 0; j < 10; j++) {
-          const div = document.createElement('div');
-          if (typeof (player.gameboard.field[i][j]) === 'object') {
-            div.textContent = '•';
-            div.style.fontSize = '2vw';
-          }
-          else if (player.gameboard.field[i][j] === 'hit') {
-            div.textContent = '✕'; // use multiplication, so that it centers!
-            div.style.fontSize = '2vw'; // dynamic font size
-            div.style.backgroundColor = 'red';
-          }
-          else if (player.gameboard.field[i][j] === 'miss') {
-            div.textContent = '✕';
-            div.style.fontSize = '1vw';
-          }
-          else {
-            div.textContent = player.gameboard.field[i][j];
-          }
-          div.setAttribute('coords', `${i},${j}`);
-          div.classList.add('unselectable');
-          field.appendChild(div);
-        }
-      }
-    }
-
-    else if (mode === 'hidden') {
+    if (mode === 'hidden') {
       for (let i = 0; i < 10; i++) {
         for (let j = 0; j < 10; j++) {
           const div = document.createElement('div');
@@ -356,6 +300,7 @@ class GUI {
         const mode = this.player2.gameboard.determineMode([row, col]);
         const startingPoint = this.player2.gameboard.determineStartingPoint([row, col]);
 
+        // !FIXME: Remove the shipSunk variable
         let shipSunk = false;
 
         // check if the ship sank
@@ -456,7 +401,7 @@ class GUI {
       return;
     }
 
-    const TIMEOUTAMOUNT = 1;
+    const TIMEOUTAMOUNT = 500;
 
     this.changeOpacity();
 
@@ -672,7 +617,6 @@ class GUI {
       // AI exhausts all its moves, game over
       if (attackCoordinates === 'No more possible moves') {
         endGame();
-        console.log('Game ended');
         return;
       }
 
@@ -735,25 +679,16 @@ class GUI {
   }
 
   changeOpacity() {
-    // if player one's turn
+    // changes field opacity, depending whose turn it is
     if (this.player1Turn === true) {
-      // change text content to "Turn: Player 1"
-      // this.turnBoard.textContent = 'Turn: Player 1';
-
-      // make player 2 field brighter
       this.field2.classList.remove('notAtTurn');
       this.field2.classList.add('atTurn');
-      // make player 1 field darker
       this.field1.classList.remove('atTurn');
       this.field1.classList.add('notAtTurn');
     }
     else if (this.player2Turn === true) {
-      // this.turnBoard.textContent = 'Turn: Player 2';
-
-      // make player 1 field brighter
       this.field1.classList.remove('notAtTurn');
       this.field1.classList.add('atTurn');
-      // make player 2 field darker
       this.field2.classList.remove('atTurn');
       this.field2.classList.add('notAtTurn');
     }

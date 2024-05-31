@@ -7,6 +7,7 @@
   --min-size-ship-placer: 404px;
   --turquoise: rgb(96, 181, 209);
   --button-color: #F0F0F0;
+  --light-green: rgb(7, 166, 7)
 }
 
 * {
@@ -69,7 +70,7 @@ main {
 .placeShips {
   border: 2px solid var(--turquoise);
   display: grid;
-  grid-template-rows: repeat(5, 1fr);
+  grid-template-rows: repeat(4, 1fr);
   grid-auto-flow: column;
 
   width: 30vw;
@@ -85,9 +86,14 @@ main {
 
   font-size: clamp(36px, 3vw, 60px);
 }
+
 .ship {
   cursor: grab;
   overflow: visible;
+  transition: transform 0.2s ease-in-out;
+}
+.ship:hover {
+  transform: scale(1.2);
 }
 
 div {
@@ -209,8 +215,8 @@ a:visited {
     border-color: white;
   }
   50% {
-    color: rgb(7, 166, 7);
-    border-color: rgb(7, 166, 7);
+    color: var(--light-green);
+    border-color: var(--light-green);
   }
   100% {
     color: white;
@@ -224,9 +230,9 @@ a:visited {
 
 .hit-effect {
   transition: transform 0.2s ease-in-out, 
-              background-color 0.2s ease-in-out; /* Use ease-in-out for smooth transitions */
-  transform: scale(1.3); /* Increase size */
-  background-color: red !important; /* Change color to red */
+              background-color 0.2s ease-in-out; /* use ease-in-out for smooth transitions */
+  transform: scale(1.3); /* increase size */
+  background-color: red !important; /* change color to red */
 }
 
 
@@ -236,16 +242,46 @@ a:visited {
   justify-content: center;
   align-items: center;
 }
-.startGame {
-  width: clamp(100px, 10vw, 160px);
-  height: clamp(40px, 4vw, 60px);
-  font-size: clamp(20px, 2vw, 30px);
 
-  cursor: pointer;
+.startGame {
+  width: clamp(100px, 10vw, 200px);
+  height: clamp(40px, 4vw, 80px);
+  font-size: clamp(20px, 2vw, 40px);
 
   border: 3px solid red;
   color: red;
   background-color: var(--button-color);
+  transition: border 0.3s ease-in-out;
+}
+/* NOT ALLOWED TO START */
+.startGameNoHover {
+  cursor: not-allowed;
+  transition: transform 0.3s ease-in-out, border 0.3s ease-in-out,
+  color 0.3s ease-in-out, background-color 0.3s ease-in-out, text-decoration 0.3s ease;;
+}
+.startGameNoHover:hover {
+  background-color: red;
+  border: 3px solid white !important;
+  color: white !important;
+  transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1),
+  border 0.3s ease-in-out, color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  transform: scale(0.9);
+  text-decoration: line-through;
+}
+
+/* ALLOWED TO START */
+.startGameHover {
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out, border 0.3s ease-in-out, color 0.3s ease-in-out, 
+  background-color 0.3s ease-in-out;
+}
+.startGameHover:hover {
+  background-color: var(--light-green);
+  border: 3px solid white !important;
+  color: white !important;
+  transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), border 0.3s ease-in-out,
+  color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  transform: scale(1.1);
 }
 
 .placementWrapper {
@@ -278,11 +314,24 @@ a:visited {
 }
 
 .buttonLocation>button {
+  background-color: var(--button-color);
+  color: black;
+  border: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+
   font-size: clamp(20px, 1.5vw, 60px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
+}
+.buttonLocation>button:hover {
+  background-color: var(--turquoise);
+  color: white;
+}
+.resetButton {
+  border-left: 2px solid var(--turquoise) !important;
+  border-right: 2px solid var(--turquoise) !important;
 }
 
 
@@ -303,7 +352,7 @@ a:visited {
   align-items: center;
 }
 
-.test {
+.help {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -313,6 +362,13 @@ a:visited {
   width: 1.5vw;
   height: 1.5vw;
   font-size: 1.5vw;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.help:hover {
+  background-color: white;
+  color: var(--turquoise);
 }
 
 .content {
@@ -323,6 +379,10 @@ a:visited {
   color: black;
   box-shadow: 0px 0px 10px 3px rgba(0, 0 ,0 , 0.8);
   font-size: clamp(14px, 2vw, 28px);
+}
+.content>p {
+  padding-left: 2vw;
+  padding-right: 2vw;
 }
 
 /* SHIPS */
