@@ -17,16 +17,15 @@ class ShipPlacement {
     for (let i = 0; i < allShips.length; i++) {
       const currentShip = allShips[i];
       const shipObject = JSON.parse(currentShip.getAttribute('shipobject'));
-      const { length } = shipObject;
-      const location = shipObject.currentPosition;
-      const { mode } = shipObject;
+      const { length, currentPosition, mode } = shipObject;
 
-      newGameboard.placeShip(new Ship(length), location, mode);
+      newGameboard.placeShip(new Ship(length), currentPosition, mode);
     }
     return newGameboard;
   }
 
   getAllShipsInfo() {
+    // puts all ship objects into an array
     const allShips = document.querySelectorAll('div[name]');
     const arrAllShipObjects = [];
     for (let i = 0; i < allShips.length; i++) {
@@ -39,7 +38,7 @@ class ShipPlacement {
 
   areAllShipsPlaced() {
     let amountOfShips = 0;
-    const requiredAmount = 23;
+    const REQUIREDAMOUNT = 23;
 
     for (let i = 0; i < 10; i++) {
       for (let j = 0; j < 10; j++) {
@@ -49,7 +48,7 @@ class ShipPlacement {
       }
     }
 
-    if (amountOfShips === requiredAmount) {
+    if (amountOfShips === REQUIREDAMOUNT) {
       return true;
     }
     else {
@@ -58,13 +57,11 @@ class ShipPlacement {
   }
 
   removeStartButton() {
-    // remove the startGame button
     const startButton = document.querySelector('.startGame');
     startButton.remove();
   }
 
   removeFieldWrapper() {
-    // remove everything from fieldWrapper
     const fieldWrapper = document.querySelector('.fieldWrapper');
     while (fieldWrapper.firstChild) {
       fieldWrapper.removeChild(fieldWrapper.firstChild);
@@ -72,6 +69,7 @@ class ShipPlacement {
   }
 
   createNewFields() {
+    // creates new fields for both players
     const fieldWrapper = document.querySelector('.fieldWrapper');
     const field1 = document.createElement('div');
     const field2 = document.createElement('div');
@@ -84,6 +82,7 @@ class ShipPlacement {
   }
 
   startGame() {
+    // changes the color of the startGame button and allows the game to start
     const startGameButton = document.querySelector('.startGame');
     if (this.areAllShipsPlaced()) {
       this.canStartGame = true;
@@ -213,7 +212,8 @@ class ShipPlacement {
         if (this.checkField(row + 1, col - 1)) {
           shipsInProximity.push(this.gameboard.field[row + 1][col - 1]);
         }
-      } else {
+      }
+      else {
         if (this.checkField(row - 1, col - 1)) {
           shipsInProximity.push(this.gameboard.field[row - 1][col - 1]);
         }
@@ -238,7 +238,8 @@ class ShipPlacement {
             shipsInProximity.push(this.gameboard.field[row + 1][col + i]);
           }
         }
-      } else {
+      }
+      else {
         for (let i = 0; i < this.getShipLength(); i++) {
           if (this.checkField(row + i, col - 1)) {
             shipsInProximity.push(this.gameboard.field[row + i][col - 1]);
@@ -267,7 +268,8 @@ class ShipPlacement {
         if (this.checkField(rowOffset + 1, colOffset + 1)) {
           shipsInProximity.push(this.gameboard.field[rowOffset + 1][colOffset + 1]);
         }
-      } else {
+      }
+      else {
         const endPoint = this.getShipLength() - 1;
         const rowOffset = startingPoint[0] + endPoint;
         const colOffset = startingPoint[1];
@@ -294,6 +296,7 @@ class ShipPlacement {
   }
 
   getNextFieldsGUI(hoveredOverElement) {
+    // gets the next fields for the ship placement color hovering
     const length = this.getShipLength();
     const startingPoint = this.getCoordinates(hoveredOverElement);
 
@@ -318,6 +321,7 @@ class ShipPlacement {
   }
 
   createShipObject(dropTarget) {
+    // creates a "fake ship" object to save the previous location to the ship, and conversion
     const name = this.getShipName();
     const length = this.getShipLength();
     const coordinates = this.getCoordinates(dropTarget);
@@ -448,10 +452,10 @@ class ShipPlacement {
 
     let color;
     if (isPlacementAllowed === true) {
-      // changes color to green, if placement is allowed and ship is itself
       color = 'green';
     }
     else if (this.areAllShipsTheSame(shipInProximity) && !this.isShipOutOfBounds(startingPoint)) {
+      // changes color to green, if placement is allowed and ship is itself
       color = 'green';
     } else {
       color = 'red';
@@ -508,7 +512,7 @@ class ShipPlacement {
     // adds an event listener to each of the draggable ships
     const arrDraggableShips = document.querySelectorAll('.ship');
     arrDraggableShips.forEach((currentShip) => { // use forEach bc of possible closure issues
-      currentShip.addEventListener('dragstart', (event) => { // USE EVENT DELEGATION HERE!
+      currentShip.addEventListener('dragstart', (event) => {
         this.draggedShip = event.target;
         this.refreshGUI();
       });
@@ -553,7 +557,7 @@ class ShipPlacement {
 
     const resetButton = document.querySelector('.resetButton');
     resetButton.addEventListener('click', () => {
-      window.location.reload();
+      this.resetButton();
     });
 
     const switchModeButton = document.querySelector('.switchModeButton');
@@ -577,7 +581,58 @@ class ShipPlacement {
   }
 
   resetButton() {
+    const saveShip = (ship) => {
+      return {
+        shipClass: 'ship',
+        id: ship.getAttribute('name'),
+        draggable: 'true',
+        length: parseInt(ship.getAttribute('length'), 10),
+        name: ship.getAttribute('name'),
+      };
+    };
 
+    const shipContainer = document.querySelector('.placeShips');
+    const arrAllParentDivs = shipContainer.querySelectorAll(':scope > div');
+
+    const arrAllShips = document.querySelectorAll('.ship');
+
+    // create an object with each attribute from the ship
+    const arrAllShipObjects = [];
+    for (let i = 0; i < arrAllShips.length; i++) {
+      const ship = arrAllShips[i];
+      const shipObject = saveShip(ship);
+      arrAllShipObjects.push(shipObject);
+    }
+
+    // Remove ships from their current containers
+    for (let i = 0; i < arrAllShips.length; i++) {
+      arrAllShips[i].remove();
+    }
+
+    // Append ships back to the placeShips div
+    for (let i = 0; i < arrAllShipObjects.length; i++) {
+      const {
+        shipClass, id, draggable, length, name,
+      } = arrAllShipObjects[i];
+
+      const shipDiv = document.createElement('div');
+
+      shipDiv.classList.add(shipClass);
+      shipDiv.setAttribute('id', id);
+      shipDiv.setAttribute('draggable', draggable);
+      shipDiv.setAttribute('length', length);
+      shipDiv.setAttribute('name', name);
+
+      const parentDiv = arrAllParentDivs[i];
+      parentDiv.appendChild(shipDiv);
+    }
+
+    // refresh everything else
+    this.gameboard = new Gameboard();
+    this.draggedShip = null;
+    this.canStartGame = false;
+    this.refreshGUI();
+    this.addEventListeners();
   }
 
   placeRandomShips() {
