@@ -131,13 +131,18 @@ class ShipPlacement {
   }
 
   getShipName() {
-    const name = this.draggedShip.getAttribute('name');
-    return name;
+    if (this.draggedShip && typeof this.draggedShip.getAttribute === 'function') {
+      return this.draggedShip.getAttribute('name');
+    }
+    return null;
   }
 
   getShipLength() {
-    const length = parseInt(this.draggedShip.getAttribute('length'), 10);
-    return length;
+    if (this.draggedShip && typeof this.draggedShip.getAttribute === 'function') {
+      const length = parseInt(this.draggedShip.getAttribute('length'), 10);
+      return Number.isNaN(length) ? null : length;
+    }
+    return null;
   }
 
   getCoordinates(dropTarget, attributeName = 'coords') {
@@ -172,6 +177,10 @@ class ShipPlacement {
   areAllShipsTheSame(arrAllShips) {
     // compares all the ship names of the surrounding ships to the current ship's name
     const shipName = this.getShipName();
+
+    if (arrAllShips.length === 0) {
+      return false;
+    }
 
     if (arrAllShips.length !== 0) {
       for (let i = 0; i < arrAllShips.length; i++) {
@@ -418,17 +427,19 @@ class ShipPlacement {
   saveInfoToShip(dropTarget, arrCoordinates, shipObject) {
     // saves the starting point, mode, location, and copy of the ship to its attributes
     const coordinates = this.getCoordinates(dropTarget);
-    this.draggedShip.setAttribute('startingPoint', coordinates);
-    this.draggedShip.setAttribute('mode', this.placementMode);
+    if (this.draggedShip) {
+      this.draggedShip.setAttribute('startingPoint', coordinates);
+      this.draggedShip.setAttribute('mode', this.placementMode);
 
-    if (arrCoordinates.length !== 0) {
-      // save the current location to the ship
-      const convertedArrCoordinates = JSON.stringify(arrCoordinates);
-      this.draggedShip.setAttribute('location', convertedArrCoordinates);
+      if (arrCoordinates.length !== 0) {
+        // save the current location to the ship
+        const convertedArrCoordinates = JSON.stringify(arrCoordinates);
+        this.draggedShip.setAttribute('location', convertedArrCoordinates);
+      }
+
+      const convertedShipObject = JSON.stringify(shipObject);
+      this.draggedShip.setAttribute('shipObject', convertedShipObject);
     }
-
-    const convertedShipObject = JSON.stringify(shipObject);
-    this.draggedShip.setAttribute('shipObject', convertedShipObject);
   }
 
   highlightShipPlacement(hoveredOverElement) {
@@ -490,7 +501,10 @@ class ShipPlacement {
     }
 
     if (this.gameboard.placeShip(shipObject, shipObject.currentPosition, this.placementMode) === 'Success') {
-      dropTarget.appendChild(this.draggedShip);
+      console.log(this.draggedShip);
+      if (this.draggedShip) {
+        dropTarget.appendChild(this.draggedShip);
+      }
       const currentLocation = this.getCurrentShipLocation();
       this.saveInfoToShip(dropTarget, currentLocation, shipObject);
     }
@@ -514,6 +528,7 @@ class ShipPlacement {
     arrDraggableShips.forEach((currentShip) => { // use forEach bc of possible closure issues
       currentShip.addEventListener('dragstart', (event) => {
         this.draggedShip = event.target;
+        console.log(this.draggedShip);
         this.refreshGUI();
       });
     });
@@ -546,13 +561,20 @@ class ShipPlacement {
       this.refreshGUI();
     });
 
-    const questionMark = document.querySelector('.test');
+    const questionMark = document.querySelector('.help');
     const dropDown = document.querySelector('.content');
+    let hoverTimeout;
     questionMark.addEventListener('mouseover', () => {
-      dropDown.style.display = 'block';
+      clearTimeout(hoverTimeout);
+      hoverTimeout = setTimeout(() => {
+        dropDown.style.display = 'block';
+      }, 100);
     });
     questionMark.addEventListener('mouseout', () => {
-      dropDown.style.display = 'none';
+      clearTimeout(hoverTimeout);
+      hoverTimeout = setTimeout(() => {
+        dropDown.style.display = 'none';
+      }, 150);
     });
 
     const resetButton = document.querySelector('.resetButton');
