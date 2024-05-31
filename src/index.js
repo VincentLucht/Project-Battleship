@@ -5,17 +5,12 @@ import Player from './js/player';
 import AI from './js/ai';
 import Gameboard from './js/gameboard';
 
+// create placeholder for placing ships
 const gameboard1 = new Gameboard();
 const player1 = new Player('player1', gameboard1);
 const field1 = document.querySelector('.field1');
-
-const gameboard2 = new Gameboard();
-const player2 = new AI(gameboard2);
-const field2 = document.querySelector('.field2');
-
 const turnBoard = document.querySelector('.turnBoard');
-
-const displayGui = new GUI(player1, player2, field1, field2, turnBoard);
+const displayGui = new GUI(player1, null, field1, null, turnBoard);
 
 // Placing Ships
 displayGui.displayFieldPlayer1();
@@ -38,15 +33,14 @@ startGameButton.addEventListener('click', () => {
     shipPlacer.removeFieldWrapper();
     shipPlacer.createNewFields();
 
-    const field11 = document.querySelector('.field1');
-    const field22 = document.querySelector('.field2');
-    const gui = new GUI(player1, player2, field11, field22, turnBoard);
+    const newField1 = document.querySelector('.field1');
+    const newField2 = document.querySelector('.field2');
+    const gui = new GUI(player1, new AI(new Gameboard()), newField1, newField2, turnBoard);
     gui.displayFieldPlayer1();
     gui.displayFieldPlayer2();
     gui.startGame();
     gui.displayBoardMessage('Attack!');
     gui.placeRandomShipsAI();
     gui.addShipImages(arrAllShipObjects);
-    console.log(player2.gameboard.field);
   }
 });
