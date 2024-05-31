@@ -58,7 +58,7 @@ class AI {
       const index = this.availableMoves[i].indexOf(valueToRemove);
       if (index !== -1) {
         this.availableMoves[i].splice(index, 1);
-        // Assuming each value appears only once, so we can break after removal.
+        // each value appears only once, break after removal.
         break;
       }
     }
@@ -86,27 +86,21 @@ class AI {
   }
 
   getRandomCoordinates() {
-    // it's a bit inefficient, but arr is only size 100
-    const randomRowIndex = Math.floor(Math.random() * this.availableMoves.length);
-    let randomRowArray = this.availableMoves[randomRowIndex];
-
-    // Check if the selected subarray is empty!
-    let i = 9;
-    while (randomRowArray.length === 0) {
-      const newRandomArray = this.availableMoves[i];
-      if (newRandomArray === undefined) {
-        return 'No more possible moves';
+    // iterate over availableMoves to collect non-empty rows
+    const nonEmptyRows = [];
+    for (let i = 0; i < this.availableMoves.length; i++) {
+      if (this.availableMoves[i].length > 0) {
+        nonEmptyRows.push(this.availableMoves[i]);
       }
-      if (newRandomArray.length !== 0) {
-        randomRowArray = newRandomArray;
-        break;
-      }
-      else if (newRandomArray.length === undefined) {
-        return 'No more possible moves';
-      }
-      i -= 1;
     }
 
+    if (nonEmptyRows.length === 0) {
+      return 'No more possible moves';
+    }
+
+    // select a random row and col from non-empty rows
+    const randomRowIndex = Math.floor(Math.random() * nonEmptyRows.length);
+    const randomRowArray = nonEmptyRows[randomRowIndex];
     const randomColIndex = Math.floor(Math.random() * randomRowArray.length);
     const move = randomRowArray[randomColIndex];
 
