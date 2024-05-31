@@ -503,7 +503,6 @@ class ShipPlacement {
     }
 
     if (this.gameboard.placeShip(shipObject, shipObject.currentPosition, this.placementMode) === 'Success') {
-      console.log(this.draggedShip);
       if (this.draggedShip) {
         dropTarget.appendChild(this.draggedShip);
       }
@@ -530,7 +529,6 @@ class ShipPlacement {
     arrDraggableShips.forEach((currentShip) => { // use forEach bc of possible closure issues
       currentShip.addEventListener('dragstart', (event) => {
         this.draggedShip = event.target;
-        console.log(this.draggedShip);
         this.refreshGUI();
       });
     });
