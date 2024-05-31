@@ -591,6 +591,34 @@ class ShipPlacement {
       };
     };
 
+    const sortArrayLength = (array) => {
+      const lengthArray = [];
+      let max = { length: 0, name: 'zzz' };
+
+      while (array.length > 0) {
+        for (let i = 0; i < array.length; i++) {
+          const ship = array[i];
+          const { length } = ship;
+          // if ship.length is larger than max.length, then update max
+          if (length > max.length) {
+            max = ship;
+          }
+          else if (length === max.length) {
+            // Compare first letters to determine alphabetical order
+            if (ship.name < max.name) {
+              max = ship;
+            }
+          }
+        }
+        // add, remove, and reset
+        lengthArray.push(max);
+        array.splice(array.indexOf(max), 1);
+        max = { length: 0, firstLetter: null };
+      }
+
+      return lengthArray;
+    };
+
     const shipContainer = document.querySelector('.placeShips');
     const arrAllParentDivs = shipContainer.querySelectorAll(':scope > div');
 
@@ -604,16 +632,18 @@ class ShipPlacement {
       arrAllShipObjects.push(shipObject);
     }
 
+    const arrAllShipSorted = sortArrayLength(arrAllShipObjects);
+
     // Remove ships from their current containers
-    for (let i = 0; i < arrAllShips.length; i++) {
+    for (let i = 0; i < arrAllShipSorted.length; i++) {
       arrAllShips[i].remove();
     }
 
     // Append ships back to the placeShips div
-    for (let i = 0; i < arrAllShipObjects.length; i++) {
+    for (let i = 0; i < arrAllShipSorted.length; i++) {
       const {
         shipClass, id, draggable, length, name,
-      } = arrAllShipObjects[i];
+      } = arrAllShipSorted[i];
 
       const shipDiv = document.createElement('div');
 
