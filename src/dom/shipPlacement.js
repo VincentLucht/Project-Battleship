@@ -88,6 +88,8 @@ class ShipPlacement {
       this.canStartGame = true;
       startGameButton.style.border = '3px solid rgb(7, 166, 7)';
       startGameButton.style.color = 'rgb(7, 166, 7)';
+      startGameButton.classList.remove('startGameNoHover');
+      startGameButton.classList.add('startGameHover');
     }
     else {
       startGameButton.style.border = '3px solid red';
@@ -554,6 +556,10 @@ class ShipPlacement {
   }
 
   enableButtons() {
+    // add style to start game button
+    const startGame = document.querySelector('.startGame');
+    startGame.classList.add('startGameNoHover');
+
     const randomButton = document.querySelector('.randomButton');
     randomButton.addEventListener('click', () => {
       this.resetGameboard();
