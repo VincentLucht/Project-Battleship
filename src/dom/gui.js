@@ -74,8 +74,7 @@ class GUI {
 
   /* eslint-disable no-param-reassign */
   hitField(clickedElement) {
-    clickedElement.textContent = '✕';
-    clickedElement.style.backgroundColor = 'red';
+    clickedElement.textContent = '💥';
     clickedElement.style.fontSize = '2rem';
   }
 
@@ -276,6 +275,19 @@ class GUI {
     this.field2.addEventListener('click', this.clickHandler);
   }
 
+  addRestartButton() {
+    // add restart button
+    const wrapper = document.querySelector('.startGameWrapper');
+    const button = document.createElement('button');
+    button.textContent = 'Restart';
+    button.classList.add('restartButton');
+    wrapper.appendChild(button);
+
+    button.addEventListener('click', () => {
+      window.location.reload();
+    });
+  }
+
   clickHandler(event) {
     const endGame = () => {
       this.player1Turn = false;
@@ -283,6 +295,8 @@ class GUI {
 
       this.disableOpacity();
       this.displayBoardMessage('Player 1 Won! Congratulations');
+
+      this.addRestartButton();
     };
 
     const clickedElement = event.target;
@@ -300,7 +314,6 @@ class GUI {
         const mode = this.player2.gameboard.determineMode([row, col]);
         const startingPoint = this.player2.gameboard.determineStartingPoint([row, col]);
 
-        // !FIXME: Remove the shipSunk variable
         let shipSunk = false;
 
         // check if the ship sank
@@ -356,6 +369,11 @@ class GUI {
       this.player2Turn = false;
       this.disableOpacity();
       this.displayBoardMessage('You lost to the AI!');
+
+      this.turnBoard.classList.remove('color-change-green');
+      this.turnBoard.classList.add('color-change-red');
+
+      this.addRestartButton();
     };
 
     const changeTurn = () => {
@@ -407,7 +425,7 @@ class GUI {
 
     // has memory
     if (this.player2.firstHitCoordinates) {
-      console.log('I have memory!');
+      // console.log('I have memory!');
 
       // yes, it has memory+
       if (this.player2.nextHitCoordinates) {
@@ -416,7 +434,7 @@ class GUI {
         const directionOffset = this.player2.getDirection(attackDirection);
         const newRow = this.player2.nextHitCoordinates[0];
         const newCol = this.player2.nextHitCoordinates[1];
-        console.log('%cNext coordinates will be: [%d, %d]', 'color: red;', newRow, newCol);
+        // console.log('%cNext coordinates will be: [%d, %d]', 'color: red;', newRow, newCol);
         // sync with gameboard
         const selectorCoords = `[coords="${newRow},${newCol}"]`;
         const selectedDivNodeList = this.field1.querySelectorAll(selectorCoords);
@@ -425,15 +443,15 @@ class GUI {
         // Path 11: yes, move is inside of the field
         if (this.player2.isMoveInsideField(newRow, newCol)) {
           const fieldContent = this.player1.gameboard.field[newRow][newCol];
-          console.log('Path 11: move is inside of field');
+          // console.log('Path 11: move is inside of field');
           // Path 11.5: is the move valid?
           if (this.player2.isFieldAttacked(fieldContent)) {
             // Path 11.5: yes, valid direction
-            console.log('Path 11.5: valid direction');
+            // console.log('Path 11.5: valid direction');
 
             // Path 12: Does it hit a ship?
             if (fieldContent === 'miss') {
-              console.log('%cPath 12.1: Field already attacked', 'color: red');
+              // console.log('%cPath 12.1: Field already attacked', 'color: red');
               // remove from available moves, due to AI not refreshing board
               this.player2.removeFromAvailableMoves([newRow, newCol]);
               // get the opposite direction
@@ -442,7 +460,7 @@ class GUI {
               // get firstHitCoordinates and combine it with the opposite direction
               const nextRow = this.player2.firstHitCoordinates[0] + newDirectionOffset[0];
               const nextCol = this.player2.firstHitCoordinates[1] + newDirectionOffset[1];
-              console.log({ nextRow, nextCol });
+              // console.log({ nextRow, nextCol });
               // set it to nexHitCoordinates
               this.player2.nextHitCoordinates = [nextRow, nextCol];
 
@@ -450,7 +468,7 @@ class GUI {
             }
             else if (fieldContent === '') {
               // Path 12.1: no hit, misses
-              console.log('%c Path 12.1: miss', 'color: blue');
+              // console.log('%c Path 12.1: miss', 'color: blue');
               executeAttack(newRow, newCol, selectedDiv, false);
               // get the opposite direction
               const oppositeDirection = this.player2.getOppositeDirection(attackDirection);
@@ -458,7 +476,7 @@ class GUI {
               // get firstHitCoordinates and combine it with the opposite direction
               const nextRow = this.player2.firstHitCoordinates[0] + newDirectionOffset[0];
               const nextCol = this.player2.firstHitCoordinates[1] + newDirectionOffset[1];
-              console.log({ nextRow, nextCol });
+              // console.log({ nextRow, nextCol });
               // set it to nexHitCoordinates
               this.player2.nextHitCoordinates = [nextRow, nextCol];
 
@@ -466,18 +484,18 @@ class GUI {
             }
             else if (typeof (fieldContent) === 'object') {
               // Path 12.1: yes, hits a ship
-              console.log('Path 12.1: hit');
+              // console.log('Path 12.1: hit');
               // Path 3: Does it sink the ship?
               if (didShipSink(newRow, newCol, fieldContent, selectedDiv) === true) {
                 // Path 13.1: yes, sinks the ship
-                console.log('Path 13.1: does sink the ship!');
+                // console.log('Path 13.1: does sink the ship!');
                 executeAttack(newRow, newCol, selectedDiv, true);
                 this.player2.resetMemory();
                 this.aiTurn();
               }
               else {
                 // Path 13.1: no, does not sink the ship
-                console.log('Path 13.1: does not sink ship');
+                // console.log('Path 13.1: does not sink ship');
                 executeAttack(newRow, newCol, selectedDiv, true);
                 // set the nextHitCoordinates
                 const nextRow = newRow + directionOffset[0];
@@ -491,7 +509,7 @@ class GUI {
 
           // Path 11.5: no, field already attacked
           else if (!this.player2.isFieldAttacked(fieldContent)) {
-            console.log('Path 11.5: field already missed');
+            // console.log('Path 11.5: field already missed');
             // delete it from available moves
             this.player2.removeFromAvailableMoves([newRow, newCol]);
             // get the opposite direction
@@ -513,7 +531,7 @@ class GUI {
 
         // Path 11: no, not inside of field
         else if (!this.player2.isMoveInsideField(newRow, newCol)) {
-          console.log('Path 11.5: Move is outside of the field');
+          // console.log('Path 11.5: Move is outside of the field');
           // switch to opposite direction
           const oppositeDirection = this.player2.getOppositeDirection(attackDirection);
           const newDirectionOffset = this.player2.getDirection(oppositeDirection);
@@ -544,21 +562,21 @@ class GUI {
         // Path 1.5: is the move inside of the field?
         // Path 1.5: yes, inside of the field
         if (this.player2.isMoveInsideField(newRow, newCol)) {
-          console.log('Path 1.5: Move is inside of the field');
+          // console.log('Path 1.5: Move is inside of the field');
           // Path 2: is the direction valid?
           const fieldContent = this.player1.gameboard.field[newRow][newCol];
           // Path 2.1: yes, valid direction
           if (this.player2.isFieldAttacked(fieldContent)) {
-            console.log('Path 2.1: valid direction');
+            // console.log('Path 2.1: valid direction');
 
             // Path 3: does it hit a ship?
             // Path 3.1: hit
             if (typeof (fieldContent) === 'object') {
-              console.log('Path 3.1: hit a ship');
+              // console.log('Path 3.1: hit a ship');
               // Path 4: does it sink the ship?
               // Path 4.1 yes, sinks ship
               if (didShipSink(newRow, newCol, fieldContent, selectedDiv) === true) {
-                console.log('Path 4.1: ship did sink');
+                // console.log('Path 4.1: ship did sink');
                 executeAttack(newRow, newCol, selectedDiv, true);
                 this.player2.resetMemory();
                 this.aiTurn();
@@ -566,7 +584,7 @@ class GUI {
 
               // Path 4.1 no, doesn't sink ship
               else {
-                console.log('Path 4.1: ship did not sink');
+                // console.log('Path 4.1: ship did not sink');
                 executeAttack(newRow, newCol, selectedDiv, true);
                 // continue to attack this direction:
                 // save attackDirection
@@ -581,7 +599,7 @@ class GUI {
 
             // Path 3.1: no hit, miss
             else if (fieldContent === '') {
-              console.log('Path 3.1: miss');
+              // console.log('Path 3.1: miss');
               executeAttack(newRow, newCol, selectedDiv, false);
               this.player2.deleteDirection(randomDirection.direction);
               changeTurn();
@@ -590,7 +608,7 @@ class GUI {
 
           // Path 2.1: no, field already missed
           else if (!this.player2.isFieldAttacked(fieldContent)) {
-            console.log('Path 2.1: field already missed');
+            // console.log('Path 2.1: field already missed');
             // delete from available moves
             this.player2.removeFromAvailableMoves([newRow, newCol]);
             // delete that direction
@@ -600,7 +618,7 @@ class GUI {
         }
         // Path 1.5: no, outside of the field
         else if (!this.player2.isMoveInsideField(newRow, newCol)) {
-          console.log('Path 1.5: Move is outside of the field and invalid');
+          // console.log('Path 1.5: Move is outside of the field and invalid');
           this.player2.deleteDirection(randomDirection.direction);
           this.aiTurn();
         }
@@ -609,7 +627,7 @@ class GUI {
 
     // no memory
     else if (!this.player2.firstHitCoordinates) {
-      console.log('I have no memory now');
+      // console.log('I have no memory now');
       const attackCoordinates = this.player2.getRandomCoordinates();
       const row = attackCoordinates[0];
       const col = attackCoordinates[1];
