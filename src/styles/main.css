@@ -223,9 +223,26 @@ a:visited {
     border-color: white;;
   }
 }
-
 .color-change-green {
   animation: color-change-green 1.5s infinite;
+}
+
+@keyframes color-change-red{
+  0% {
+    color: white;
+    border-color: white;
+  }
+  50% {
+    color: red;
+    border-color: red;
+  }
+  100% {
+    color: white;
+    border-color: white;;
+  }
+}
+.color-change-red {
+  animation: color-change-red 1.5s infinite;
 }
 
 .hit-effect {
@@ -427,4 +444,23 @@ a:visited {
   background-size: cover;
   width: clamp(36px, 2vw, 60px);
   height: clamp(36px, 2vw, 60px);
+}
+
+.restartButton {
+  display: inline-block;
+  padding: 10px 20px;
+  width: clamp(100px, 10vw, 200px);
+  height: clamp(40px, 4vw, 80px);
+  font-size: clamp(20px, 2vw, 40px);
+  border: 2px solid var(--turquoise, rgb(96, 181, 209));
+  background-color: var(--button-color, #F0F0F0);
+  color: black;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, transform 0.3s;
+}
+
+.restartButton:hover {
+  background-color: var(--turquoise, rgb(96, 181, 209));
+  color: #fff;
+  transform: scale(1.1);
 }
