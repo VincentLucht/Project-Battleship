@@ -565,9 +565,14 @@ class ShipPlacement {
       this.refreshGUI();
     });
 
+    const resetButton = document.querySelector('.resetButton');
+    resetButton.addEventListener('click', () => {
+      this.resetButton();
+    });
+
     const questionMark = document.querySelector('.help');
     const dropDown = document.querySelector('.content');
-    const dropDownContainer = document.querySelector('.dropdown');
+    const dropDownContainer = document.querySelector('.help');
 
     questionMark.addEventListener('click', (event) => {
       if (event.target === event.currentTarget) {
@@ -609,6 +614,7 @@ class ShipPlacement {
   }
 
   resetButton() {
+    console.log('clicked');
     const saveShip = (ship) => {
       return {
         shipClass: 'ship',
