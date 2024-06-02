@@ -6,6 +6,7 @@
 :root {
   --min-size-ship-placer: 404px;
   --turquoise: rgb(96, 181, 209);
+  --darker-turquoise: rgb(42, 154, 191);
   --button-color: #F0F0F0;
   --light-green: rgb(7, 166, 7)
 }
@@ -286,6 +287,19 @@ a:visited {
   text-decoration: line-through;
 }
 
+@keyframes shakeAnimation {
+  0% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-5px) rotate(-5deg); }
+  50% { transform: translateX(5px) rotate(5deg); }
+  75% { transform: translateX(-5px) rotate(-5deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+.startGameNoHover:active {
+  animation: shakeAnimation 0.2s ease;
+  animation-fill-mode: forwards;
+  transition: transform 0.2s ease-in-out;
+}
+
 /* ALLOWED TO START */
 .startGameHover {
   cursor: pointer;
@@ -299,6 +313,10 @@ a:visited {
   transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), border 0.3s ease-in-out,
   color 0.3s ease-in-out, background-color 0.3s ease-in-out;
   transform: scale(1.1);
+}
+.startGameHover:active {
+  background-color: rgb(17, 123, 17);
+  transition: background-color 0.1s ease-in; /* sped up for active class! */
 }
 
 .placementWrapper {
@@ -346,6 +364,10 @@ a:visited {
   background-color: var(--turquoise);
   color: white;
 }
+.buttonLocation>button:active {
+  background-color: var(--darker-turquoise);
+  transition: background-color 0.05s ease-in; /* speed up transition time for active p-class */
+}
 .resetButton {
   border-left: 2px solid var(--turquoise) !important;
   border-right: 2px solid var(--turquoise) !important;
@@ -381,11 +403,14 @@ a:visited {
   font-size: 1.5vw;
   color: white;
   transition: background-color 0.3s ease;
+  transition: transform 0.1s ease-in;
 }
-
 .help:hover {
   background-color: white;
   color: var(--turquoise);
+}
+.help:active {
+  transform: scale(0.9);
 }
 
 .content {

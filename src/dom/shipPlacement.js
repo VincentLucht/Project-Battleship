@@ -614,7 +614,6 @@ class ShipPlacement {
   }
 
   resetButton() {
-    console.log('clicked');
     const saveShip = (ship) => {
       return {
         shipClass: 'ship',
