@@ -363,7 +363,6 @@ a:visited {
 }
 
 .icon {
-  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -374,6 +373,7 @@ a:visited {
   justify-content: center;
   align-items: center;
 
+  cursor: pointer;
   border: 2px solid var(--turquoise);
   border-radius: 50%;
   width: 1.5vw;
@@ -389,7 +389,8 @@ a:visited {
 }
 
 .content {
-  display: none;
+  opacity: 0;
+  pointer-events: none;
   position: absolute;
   background-color: var(--button-color);
   min-width: 5vw;
@@ -401,6 +402,45 @@ a:visited {
   padding-left: 2vw;
   padding-right: 2vw;
 }
+
+@keyframes dropdown {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes dropdown-reverse {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+.visible, .hidden {
+  margin-top: 10px;
+  transform-origin: 5vw top;
+}
+
+.visible {
+  opacity: 1;
+  animation: dropdown 300ms ease-in-out;
+  transform: scale(1);
+}
+
+.hidden {
+  opacity: 0;
+  animation: dropdown-reverse 300ms ease-in-out;
+  transform: scale(0);
+}
+
 
 /* SHIPS */
 #aircraftcarrier {

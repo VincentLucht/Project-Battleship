@@ -567,25 +567,27 @@ class ShipPlacement {
 
     const questionMark = document.querySelector('.help');
     const dropDown = document.querySelector('.content');
-    let hoverTimeout;
-    questionMark.addEventListener('mouseover', () => {
-      clearTimeout(hoverTimeout);
-      hoverTimeout = setTimeout(() => {
-        dropDown.style.display = 'block';
-      }, 100);
+    const dropDownContainer = document.querySelector('.dropdown');
+
+    questionMark.addEventListener('click', (event) => {
+      if (event.target === event.currentTarget) {
+        if (dropDown.classList.contains('visible')) {
+          dropDown.classList.remove('visible');
+          dropDown.classList.add('hidden');
+        } else {
+          dropDown.classList.remove('hidden');
+          dropDown.classList.add('visible');
+        }
+      }
     });
-    questionMark.addEventListener('mouseout', () => {
-      clearTimeout(hoverTimeout);
-      hoverTimeout = setTimeout(() => {
-        dropDown.style.display = 'none';
-      }, 150);
+    window.addEventListener('click', (event) => {
+      if (!dropDownContainer.contains(event.target) && dropDown.classList.contains('visible')) {
+        dropDown.classList.remove('visible');
+        dropDown.classList.add('hidden');
+      }
     });
 
-    const resetButton = document.querySelector('.resetButton');
-    resetButton.addEventListener('click', () => {
-      this.resetButton();
-    });
-
+    // switching modes
     const switchModeButton = document.querySelector('.switchModeButton');
     switchModeButton.addEventListener('click', () => {
       if (this.placementMode === 'horizontal') {
