@@ -469,37 +469,37 @@ a:visited {
 
 /* SHIPS */
 #aircraftcarrier {
-  background-image: url('img/aircraftcarrier/iconACC.png');
+  background-image: url('/img/aircraftcarrier/iconACC.png');
   background-size: cover;
   width: clamp(36px, 2vw, 60px);
   height: clamp(36px, 2vw, 60px);
 }
 #battleship {
-  background-image: url('img/battleship/icon.png');
+  background-image: url('/img/battleship/icon.png');
   background-size: cover;
   width: clamp(36px, 2vw, 60px);
   height: clamp(36px, 2vw, 60px);
 }
 #dreadnought {
-  background-image: url('img/dreadnought/iconDNG.png');
+  background-image: url('/img/dreadnought/iconDNG.png');
   background-size: cover;
   width: clamp(36px, 2vw, 60px);
   height: clamp(36px, 2vw, 60px);
 }
 #submarine {
-  background-image: url('img/submarine/iconSub.png');
+  background-image: url('/img/submarine/iconSub.png');
   background-size: cover;
   width: clamp(36px, 2vw, 60px);
   height: clamp(36px, 2vw, 60px);
 }
 #cruiser {
-  background-image: url('img/cruiser/iconCRS.png');
+  background-image: url('/img/cruiser/iconCRS.png');
   background-size: cover;
   width: clamp(36px, 2vw, 60px);
   height: clamp(36px, 2vw, 60px);
 }
 #destroyer {
-  background-image: url('img/destroyer/iconDes.png');
+  background-image: url('/img/destroyer/iconDes.png');
   background-size: cover;
   width: clamp(36px, 2vw, 60px);
   height: clamp(36px, 2vw, 60px);
