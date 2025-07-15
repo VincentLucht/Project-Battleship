@@ -42,7 +42,7 @@ module.exports = {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: 'asset/resource',
         generator: {
-          filename: 'img/[path][name][ext]',
+          filename: 'img/[name][ext]',
         },
       },
 
@@ -50,9 +50,8 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: {
-          and: [/node_modules/], // Exclude libraries in node_modules ...
+          and: [/node_modules/],
           not: [
-            // Except for a few of them that needs to be transpiled because they use modern syntax
             /unfetch/,
             /d3-array|d3-scale/,
             /@hapi[\\/]joi-date/,
@@ -66,9 +65,8 @@ module.exports = {
   // plugins
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Template Repo', // change title to whatever you want
+      title: 'Template Repo',
       filename: 'index.html',
-      // add template, will delete new additions to index.html otherwise
       template: 'src/template.html',
     }),
   ],
