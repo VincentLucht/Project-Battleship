@@ -505,7 +505,7 @@ a:visited {
   height: clamp(36px, 2vw, 60px);
 }
 #falcon {
-  background-image: url('img/falcon/iconFal.png');
+  background-image: url('/img/falcon/iconFal.png');
   background-size: cover;
   width: clamp(36px, 2vw, 60px);
   height: clamp(36px, 2vw, 60px);

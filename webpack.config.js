@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -32,9 +33,23 @@ module.exports = {
   module: {
     rules: [
       // CSS
+      // CSS
       {
         test: /\.css$/i,
-        use: ['style-loader', 'css-loader'],
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              url: {
+                filter: (url) => {
+                  // Don't process absolute paths starting with /
+                  return !url.startsWith('/');
+                },
+              },
+            },
+          },
+        ],
       },
 
       // images
@@ -42,7 +57,7 @@ module.exports = {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: 'asset/resource',
         generator: {
-          filename: 'img/[name][ext]',
+          filename: 'img/[path][name][ext]',
         },
       },
 
@@ -69,5 +84,11 @@ module.exports = {
       filename: 'index.html',
       template: 'src/template.html',
     }),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'public', to: '.' },
+      ],
+    }),
+
   ],
 };
