@@ -1,5 +1,5 @@
-[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/VincentLucht/Project-Battleship/README.md)
-[![de](https://img.shields.io/badge/lang-de-blue.svg)](https://github.com/VincentLucht/Project-Battleship/README.de.md)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](README.md)
+[![de](https://img.shields.io/badge/lang-de-blue.svg)](README.de.md)
 
 # Battleship
 The full Battleship experience built in the browser! Built as the final project of the JavaScript fundamentals from [The Odin Project](https://www.theodinproject.com/)
