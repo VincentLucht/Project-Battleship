@@ -1,39 +1,43 @@
-📚 Things I learned:
-- how to use TDD using Jest
-- implementing a drag and drop system
-- refactoring code and keeping a consistent code style with a large project
-- organizing code in a large codebase
-- how to use clamp() in CSS to easily size elements
-- how to use object and array destructuring to minimize code
-- using recursion, for a quite large divide and conquer algorithm
-- deepened knowledge about the basics (loops, classes, etc.) and data-structures and algorithms
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/VincentLucht/Project-Battleship/README.md)
+[![de](https://img.shields.io/badge/lang-de-blue.svg)](https://github.com/VincentLucht/Project-Battleship/README.de.md)
 
+# Battleship
+The full Battleship experience built in the browser! Built as the final project of the JavaScript fundamentals from [The Odin Project](https://www.theodinproject.com/)
 
-(old) TODO's:
-- [x] fix bug, where attacking the top left corner 'drops' the GUI field down
-- [x] reduce code duplication in the checkProximity() function, can combine multiple statements
-- [x] add hit effect when this.receiveAttack() runs, so that it looks nicer
-- [x] add AI for the enemy
-- [x] add game over
-- [x] remove hover effect from AI field
-DRAG AND DROP:
-- [x] add drag and drop feature
-- [x] reduce amount of refreshing the board when placing the ship
-- [x] implement a proper reset button
-- [x] add functionality to the random button
-- [x] add event listener to "R" key to also change mode
-- [x] fix bug where ships would randomize after reset
-CSS:
-- [x] remove hover effect when placing ship
-- [x] scale Board message
-- [x] reduce maximum size on both fields
-- [x] fix scaling of fields on smaller screen
-- [x] correct the style of the info field (above the mode button)
-- [x] add info to the question, press r to rotate
-- [x] add nice hover stylings for the buttons in ship placement
-- [x] add proper hit texture, explosion? "💥" emoji?
-IMAGES:
-- [x] add images for each ship
-- [x] add another submarine model, with going over water a bit
-OTHER:
-- [x] update eslint rule-set to template repo!
+## Links
+- [Live Project](https://battleship-vl.vercel.app)
+
+## Demo
+![Battleship Gameplay Demo](./public/battleship-demo.gif)
+
+## Features
+**Pure JavaScript Implementation:** Browser-based game built with vanilla JavaScript and DOM manipulation, demonstrating core programming fundamentals without any frameworks
+
+**Game Logic & Algorithms:** Custom battleship logic with 2D array-based board state management, ship placement validation, hit detection, and AI opponent logic
+
+**UI/UX Design:** Interactive GUI with dynamic DOM updates, custom drag-and-drop logic, visual feedback for game states, and responsive user interactions using pure JavaScript event handling
+
+**Object-Oriented Programming:** Clean code architecture with separation of concerns between game logic, UI rendering, and game state management
+
+## Installation & Setup
+### Clone the repo
+```bash
+git clone https://github.com/VincentLucht/Project-Battleship.git
+```
+
+### Navigate to project directory
+```bash
+cd Project-Battleship
+```
+
+### Commands (in order)
+```bash
+npm install
+npx webpack
+```
+
+### Open in browser
+open dist/index.html
+
+## Tech Stack
+[![Tech Stack](https://skillicons.dev/icons?i=js,html,css,webpack)](https://skillicons.dev)
