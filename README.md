@@ -8,7 +8,7 @@ Das vollständige Schiffe Versenken-Erlebnis, gebaut im Browser! Erstellt als Ab
 - [Live Projekt](https://battleship-vl.vercel.app)
 
 ## Demo
-![Battleship Gameplay Demo](./public/battleship-demo.mp4)
+![Battleship Gameplay Demo](https://github.com/VincentLucht/Project-Battleship/raw/main/public/battleship-demo.gif)
 
 ## Features
 **Pure JavaScript Implementierung:** Browser-basiertes Spiel mit Vanilla JavaScript und DOM-Manipulation, demonstriert grundlegende Programmierkonzepte ohne Frameworks 

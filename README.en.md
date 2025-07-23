@@ -8,7 +8,7 @@ The full Battleship experience built in the browser! Built as the final project 
 - [Live Project](https://battleship-vl.vercel.app)
 
 ## Demo
-![Battleship Gameplay Demo](./public/battleship-demo.gif)
+![Battleship Gameplay Demo](https://github.com/VincentLucht/Project-Battleship/raw/main/public/battleship-demo.gif)
 
 ## Features
 **Pure JavaScript Implementation:** Browser-based game built with vanilla JavaScript and DOM manipulation, demonstrating core programming fundamentals without any frameworks
